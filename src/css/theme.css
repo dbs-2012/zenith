@@ -1,0 +1,203 @@
+/* ============================================
+   CENTRALIZED THEME SYSTEM
+   ============================================
+   This file contains all theme variables for both
+   light and dark themes. Use these variables in
+   your CSS files for consistent styling.
+   ============================================ */
+
+/* ============================================
+   LIGHT THEME (Default)
+   ============================================ */
+:root {
+    /* Background Colors */
+    --bg-gradient: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #fff3e0 100%);
+    --bg-solid: #ffffff;
+
+    /* Surface Colors */
+    --surface-primary: rgba(255, 255, 255, 0.95);
+    --surface-secondary: rgba(255, 255, 255, 0.8);
+    --surface-card: rgba(255, 255, 255, 0.95);
+    --surface-header: linear-gradient(135deg, rgba(227, 242, 253, 0.6) 0%, rgba(243, 229, 245, 0.6) 50%, rgba(255, 243, 224, 0.6) 100%);
+
+    /* Text Colors */
+    --text-primary: rgba(0, 0, 0, 0.9);
+    --text-secondary: rgba(0, 0, 0, 0.7);
+    --text-muted: rgba(0, 0, 0, 0.6);
+    --text-disabled: rgba(0, 0, 0, 0.4);
+
+    /* Border Colors */
+    --border-primary: rgba(0, 0, 0, 0.06);
+    --border-secondary: rgba(0, 0, 0, 0.04);
+    --border-focus: rgba(67, 152, 238, 0.3);
+    --border-white: rgba(255, 255, 255, 0.5);
+    --border-card: rgba(255, 255, 255, 0.8);
+
+    /* Accent Colors - Gradients */
+    --accent-gradient-primary: linear-gradient(135deg, #4398ee 10%, #671988 90%);
+    --accent-gradient-secondary: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%);
+    --accent-gradient-tertiary: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%);
+
+    /* Accent Colors - Solid */
+    --accent-blue: #4398ee;
+    --accent-purple: #671988;
+    --accent-orange: #ff6b35;
+    --accent-cyan: #06b6d4;
+    --accent-pink: #ec4899;
+
+    /* Interactive States */
+    --hover-overlay: rgba(67, 152, 238, 0.08);
+    --active-overlay: rgba(255, 154, 86, 0.15);
+    --focus-ring: rgba(67, 152, 238, 0.4);
+
+    /* Shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.12);
+
+    /* Effects */
+    --backdrop-blur: blur(20px);
+    --backdrop-blur-strong: blur(30px);
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+
+    /* Scrollbar */
+    --scrollbar-track: rgba(0, 0, 0, 0.02);
+    --scrollbar-thumb: rgba(67, 152, 238, 0.3);
+    --scrollbar-thumb-hover: rgba(67, 152, 238, 0.5);
+}
+
+/* ============================================
+   DARK THEME
+   ============================================ */
+.layout-container[data-theme="dark"] {
+    /* Background Colors */
+    --bg-gradient: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+    --bg-solid: #0a0e27;
+
+    /* Surface Colors */
+    --surface-primary: rgba(10, 14, 39, 0.85);
+    --surface-secondary: rgba(22, 33, 62, 0.75);
+    --surface-card: linear-gradient(135deg, rgba(10, 14, 39, 0.7), rgba(22, 33, 62, 0.6));
+    --surface-header: linear-gradient(135deg, rgba(10, 14, 39, 0.95) 0%, rgba(22, 33, 62, 0.9) 50%, rgba(15, 52, 96, 0.85) 100%);
+
+    /* Text Colors */
+    --text-primary: rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --text-muted: rgba(255, 255, 255, 0.7);
+    --text-disabled: rgba(255, 255, 255, 0.4);
+
+    /* Border Colors */
+    --border-primary: rgba(6, 182, 212, 0.2);
+    --border-secondary: rgba(6, 182, 212, 0.15);
+    --border-focus: rgba(6, 182, 212, 0.4);
+    --border-glow: rgba(6, 182, 212, 0.25);
+
+    /* Accent Colors - Gradients */
+    --accent-gradient-primary: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%);
+    --accent-gradient-secondary: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2));
+    --accent-gradient-tertiary: linear-gradient(90deg, rgba(6, 182, 212, 0.25) 0%, rgba(139, 92, 246, 0.2) 50%, rgba(236, 72, 153, 0.15) 100%);
+
+    /* Accent Colors - Solid */
+    --accent-cyan: #06b6d4;
+    --accent-purple: #8b5cf6;
+    --accent-pink: #ec4899;
+    --accent-blue: #06b6d4;
+    --accent-orange: #f59e0b;
+
+    /* Interactive States */
+    --hover-overlay: linear-gradient(90deg, rgba(6, 182, 212, 0.15), rgba(139, 92, 246, 0.15));
+    --active-overlay: linear-gradient(90deg, rgba(6, 182, 212, 0.25) 0%, rgba(139, 92, 246, 0.2) 50%, rgba(236, 72, 153, 0.15) 100%);
+    --focus-ring: rgba(6, 182, 212, 0.5);
+
+    /* Shadows */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.6);
+
+    /* Glow Effects */
+    --glow-cyan-sm: 0 0 10px rgba(6, 182, 212, 0.3);
+    --glow-cyan-md: 0 0 20px rgba(6, 182, 212, 0.4);
+    --glow-cyan-lg: 0 0 40px rgba(6, 182, 212, 0.5);
+    --glow-purple-sm: 0 0 10px rgba(139, 92, 246, 0.3);
+    --glow-purple-md: 0 0 20px rgba(139, 92, 246, 0.4);
+    --glow-pink-sm: 0 0 10px rgba(236, 72, 153, 0.3);
+
+    /* Combined Shadows with Glow */
+    --shadow-glow-sm: var(--shadow-sm), var(--glow-cyan-sm);
+    --shadow-glow-md: var(--shadow-md), var(--glow-cyan-md);
+    --shadow-glow-lg: var(--shadow-lg), var(--glow-cyan-lg);
+
+    /* Inset Glows */
+    --inset-glow-sm: inset 0 0 20px rgba(6, 182, 212, 0.05);
+    --inset-glow-md: inset 0 0 40px rgba(6, 182, 212, 0.08);
+    --inset-glow-lg: inset 0 0 60px rgba(6, 182, 212, 0.1);
+
+    /* Effects */
+    --backdrop-blur: blur(20px) saturate(180%);
+    --backdrop-blur-strong: blur(30px) saturate(200%);
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+
+    /* Scrollbar */
+    --scrollbar-track: rgba(10, 14, 39, 0.5);
+    --scrollbar-thumb: linear-gradient(180deg, #06b6d4, #8b5cf6);
+    --scrollbar-thumb-hover: linear-gradient(180deg, #06b6d4, #ec4899);
+}
+
+/* ============================================
+   THEME-SPECIFIC UTILITIES
+   ============================================ */
+
+/* Gradient Animation for Dark Theme */
+.layout-container[data-theme="dark"] {
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Text Gradient Utilities */
+.text-gradient {
+    background: var(--accent-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Glassmorphism Effect */
+.glass-effect {
+    background: var(--surface-primary);
+    backdrop-filter: var(--backdrop-blur);
+}
+
+/* Card Styles */
+.card {
+    background: var(--surface-card);
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+}
+
+/* Button Hover Effect */
+.interactive:hover {
+    background: var(--hover-overlay);
+    transform: translateY(-2px);
+    transition: var(--transition-normal);
+}

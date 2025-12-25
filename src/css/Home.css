@@ -1,0 +1,127 @@
+/* Home Container */
+.home-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #fff3e0 100%);
+    padding: 2rem;
+}
+
+.home-content {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 3rem 4rem;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        0 0 0 1px rgba(255, 255, 255, 0.8),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.home-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #4398ee 10%, #671988 90%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 1rem 0;
+    letter-spacing: -0.5px;
+}
+
+.home-subtitle {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 1.1rem;
+    margin: 0 0 2rem 0;
+}
+
+.logout-button {
+    padding: 0.875rem 2rem;
+    background: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+}
+
+.logout-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(255, 107, 53, 0.5);
+}
+
+.logout-button:active {
+    transform: translateY(0);
+}
+
+/* Dark Theme - Premium Refined Version */
+[data-theme="dark"] .home-container {
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1a1a2e 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+[data-theme="dark"] .home-content {
+    background: linear-gradient(135deg, rgba(10, 14, 39, 0.85), rgba(22, 33, 62, 0.75));
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid transparent;
+    border-image: linear-gradient(135deg, rgba(6, 182, 212, 0.4), rgba(139, 92, 246, 0.4), rgba(236, 72, 153, 0.3)) 1;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 60px rgba(6, 182, 212, 0.2),
+        inset 0 0 80px rgba(6, 182, 212, 0.1);
+}
+
+[data-theme="dark"] .home-title {
+    background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 25px rgba(6, 182, 212, 0.5));
+    animation: titleGlow 3s ease-in-out infinite;
+}
+
+[data-theme="dark"] .home-subtitle {
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+}
+
+[data-theme="dark"] .logout-button {
+    background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%);
+    box-shadow:
+        0 4px 20px rgba(6, 182, 212, 0.4),
+        0 0 40px rgba(6, 182, 212, 0.2);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+[data-theme="dark"] .logout-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+[data-theme="dark"] .logout-button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+[data-theme="dark"] .logout-button:hover {
+    box-shadow:
+        0 6px 30px rgba(6, 182, 212, 0.6),
+        0 0 60px rgba(139, 92, 246, 0.4);
+    border-color: rgba(6, 182, 212, 0.5);
+}
