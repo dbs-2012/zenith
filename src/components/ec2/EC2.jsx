@@ -1,4 +1,4 @@
-import '../css/ResourcePage.css';
+import '../../css/ResourcePage.css';
 
 function EC2() {
     return (

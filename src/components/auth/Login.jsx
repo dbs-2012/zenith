@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../css/Login.css';
-import awsLogo from '../assets/aws-logo.png';
+import '../../css/auth/Login.css';
+import awsLogo from '../../assets/aws-logo.png';
 
 function Login() {
     const [username, setUsername] = useState('');
