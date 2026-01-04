@@ -19,6 +19,7 @@ import {
     XCircle
 } from 'lucide-react';
 import EKGSignal from '../common/EKGSignal';
+import ExceptionTimer from './ExceptionTimer';
 import '../../css/ecs/ECS.css';
 import '../../css/ecs/ScheduleModal.css';
 import { X, Minus, Plus, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -57,7 +58,8 @@ function ECS() {
             runningServices: 10,
             closedServices: 2,
             computeType: 'ASG',
-            scheduledDays: 7,
+            scheduledDays: 5,
+            totalDays: 7,
             isException: true
         },
         {
@@ -68,6 +70,7 @@ function ECS() {
             closedServices: 0,
             computeType: 'FARGATE',
             scheduledDays: 0,
+            totalDays: 0,
             isException: false
         },
         {
@@ -77,7 +80,8 @@ function ECS() {
             runningServices: 3,
             closedServices: 0,
             computeType: 'FARGATE',
-            scheduledDays: 30,
+            scheduledDays: 3,
+            totalDays: 30,
             isException: true
         },
         {
@@ -119,13 +123,23 @@ function ECS() {
 
     const handleConfirmSchedule = (range) => {
         if (selectedCluster) {
+            const diffTime = Math.abs(range.to.getTime() - range.from.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end
+
             setScheduledRanges(prev => ({
                 ...prev,
-                [selectedCluster.id]: range
+                [selectedCluster.id]: {
+                    from: range.from,
+                    to: range.to,
+                    remainingDays: diffDays,
+                    totalDays: diffDays
+                }
             }));
+
             console.log(`Schedule confirmed for ${selectedCluster.name}:`, {
                 from: range.from.toLocaleDateString(),
-                to: range.to.toLocaleDateString()
+                to: range.to.toLocaleDateString(),
+                duration: diffDays
             });
             setIsScheduleModalOpen(false);
         }
@@ -284,10 +298,19 @@ function ECS() {
                                             <Container size={20} className="cluster-icon-modern" />
                                             <div className="cluster-details">
                                                 <span className="cluster-name-text">{cluster.name}</span>
-                                                {cluster.isException && cluster.scheduledDays > 0 && (
-                                                    <span className="exception-badge">
-                                                        <Clock size={12} />
-                                                        Active {cluster.scheduledDays} {cluster.scheduledDays === 1 ? 'Day' : 'Days'}
+                                                {(cluster.isException || scheduledRanges[cluster.id]) && (
+                                                    <span className={`exception-badge ${(() => {
+                                                        const data = scheduledRanges[cluster.id] || { remainingDays: cluster.scheduledDays, totalDays: cluster.totalDays };
+                                                        if (data.remainingDays <= 1) return 'bg-critical';
+                                                        if ((data.remainingDays / data.totalDays) <= 0.5) return 'bg-warning';
+                                                        return 'bg-safe';
+                                                    })()
+                                                        }`}>
+                                                        <ExceptionTimer
+                                                            remaining={scheduledRanges[cluster.id]?.remainingDays ?? cluster.scheduledDays}
+                                                            total={scheduledRanges[cluster.id]?.totalDays ?? cluster.totalDays}
+                                                        />
+                                                        Active {scheduledRanges[cluster.id]?.remainingDays ?? cluster.scheduledDays} {(scheduledRanges[cluster.id]?.remainingDays ?? cluster.scheduledDays) === 1 ? 'Day' : 'Days'}
                                                     </span>
                                                 )}
                                             </div>
@@ -344,6 +367,7 @@ function ECS() {
             <ScheduleModal
                 isOpen={isScheduleModalOpen}
                 cluster={selectedCluster}
+                initialRange={selectedCluster ? scheduledRanges[selectedCluster.id] : null}
                 onClose={() => setIsScheduleModalOpen(false)}
                 onConfirm={handleConfirmSchedule}
             />

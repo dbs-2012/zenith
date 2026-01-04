@@ -369,6 +369,7 @@ function ECSServices() {
             <ScheduleModal
                 isOpen={isScheduleModalOpen}
                 cluster={{ name: clusterName }}
+                initialRange={scheduledRange}
                 onClose={() => setIsScheduleModalOpen(false)}
                 onConfirm={handleConfirmSchedule}
             />

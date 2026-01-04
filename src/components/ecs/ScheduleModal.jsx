@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import '../../css/ecs/ScheduleModal.css';
 
@@ -6,6 +6,17 @@ const ScheduleModal = ({ isOpen, onClose, onConfirm, cluster }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            // Always start fresh for a new editing session
+            setStartDate(null);
+            setEndDate(null);
+            setCurrentMonth(new Date());
+            setIsSaving(false);
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -49,12 +60,18 @@ const ScheduleModal = ({ isOpen, onClose, onConfirm, cluster }) => {
         }
     };
 
-    const handleConfirm = () => {
-        if (startDate) {
-            onConfirm({
-                from: startDate,
-                to: endDate || startDate
-            });
+    const handleConfirm = async () => {
+        if (startDate && !isSaving) {
+            setIsSaving(true);
+
+            // Simulate backend delay
+            setTimeout(() => {
+                onConfirm({
+                    from: startDate,
+                    to: endDate || startDate
+                });
+                setIsSaving(false);
+            }, 800);
         }
     };
 
@@ -149,11 +166,11 @@ const ScheduleModal = ({ isOpen, onClose, onConfirm, cluster }) => {
 
                 <div className="schedule-modal-footer">
                     <button
-                        className="btn-schedule-save"
+                        className={`btn-schedule-save ${isSaving ? 'saving' : ''}`}
                         onClick={handleConfirm}
-                        disabled={!startDate}
+                        disabled={!startDate || isSaving}
                     >
-                        Confirm Schedule
+                        {isSaving ? 'Saving to Cloud...' : 'Confirm Schedule'}
                     </button>
                 </div>
             </div>
