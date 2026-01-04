@@ -20,6 +20,7 @@ import {
     ArrowRight
 } from 'lucide-react';
 import EKGSignal from '../common/EKGSignal';
+import ScheduleModal from './ScheduleModal';
 import '../../css/ecs/ECSServices.css';
 
 function ECSServices() {
@@ -29,6 +30,8 @@ function ECSServices() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedService, setSelectedService] = useState(null);
     const [editForm, setEditForm] = useState({ min: 0, desired: 0, max: 0 });
+    const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+    const [scheduledRange, setScheduledRange] = useState(null);
 
     // Mock data - Teammate will replace with API call
     const [services, setServices] = useState([
@@ -62,8 +65,16 @@ function ECSServices() {
 
     // Placeholder for teammate: Logic to schedule cluster
     const handleSchedule = () => {
-        console.log('Schedule cluster triggered');
-        // TODO: Implement schedule logic
+        setIsScheduleModalOpen(true);
+    };
+
+    const handleConfirmSchedule = (range) => {
+        setScheduledRange(range);
+        console.log(`Schedule confirmed for ${clusterName}:`, {
+            from: range.from.toLocaleDateString(),
+            to: range.to.toLocaleDateString()
+        });
+        setIsScheduleModalOpen(false);
     };
 
     // Placeholder for teammate: Logic to toggle individual service
@@ -354,6 +365,13 @@ function ECSServices() {
                     </div>
                 </div>
             )}
+            {/* Schedule Modal */}
+            <ScheduleModal
+                isOpen={isScheduleModalOpen}
+                cluster={{ name: clusterName }}
+                onClose={() => setIsScheduleModalOpen(false)}
+                onConfirm={handleConfirmSchedule}
+            />
         </div>
     );
 }

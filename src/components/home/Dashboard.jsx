@@ -16,6 +16,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useOutletContext } from 'react-router-dom';
 import { useEffect } from 'react';
+import EKGSignal from '../common/EKGSignal';
 import '../../css/home/Dashboard.css';
 
 function Dashboard() {
@@ -135,7 +136,7 @@ function Dashboard() {
                 </div>
                 <div className="hero-stats">
                     <div className="stat-badge">
-                        <Activity size={16} />
+                        <EKGSignal size="small" type="success" />
                         <span>All Systems Operational</span>
                     </div>
                     <div className="stat-badge">
@@ -153,7 +154,7 @@ function Dashboard() {
                         <div key={index} className={`metric-card metric-${metric.color}`}>
                             <div className="metric-header">
                                 <div className="metric-icon">
-                                    <Icon size={20} />
+                                    {metric.icon === Activity ? <EKGSignal size="small" type="active" /> : <Icon size={20} />}
                                 </div>
                                 <span className={`metric-change ${metric.trend}`}>
                                     {metric.change}

@@ -45,6 +45,26 @@
     line-height: 1.6;
 }
 
+.system-pulse-monitor {
+    background: #0b0e13;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.5rem;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.pulse-label {
+    font-size: 0.65rem;
+    color: var(--accent-info);
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    opacity: 0.8;
+}
+
 .hero-stats {
     display: flex;
     gap: 1rem;

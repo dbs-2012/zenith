@@ -1,0 +1,414 @@
+.schedule-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.schedule-modal-content {
+    background: white;
+    width: 100%;
+    max-width: 480px;
+    /* Reduced from 600px */
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.schedule-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.close-modal-btn {
+    background: #f1f5f9;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.2s;
+}
+
+.close-modal-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.schedule-modal-body {
+    padding: 1.5rem;
+    /* Reduced from 2rem */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ============================================
+   ANIMATED CLOCK
+   ============================================ */
+.clock-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* ============================================
+   UPGRADED NEURAL SCANNER CLOCK
+   ============================================ */
+.animated-clock {
+    width: 120px;
+    /* Scaled down from 150px */
+    height: 120px;
+    border: 2px solid rgba(6, 182, 212, 0.5);
+    border-radius: 50%;
+    position: relative;
+    background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+    box-shadow:
+        0 0 40px rgba(6, 182, 212, 0.2),
+        inset 0 0 25px rgba(0, 0, 0, 0.8),
+        inset 0 0 10px rgba(6, 182, 212, 0.1);
+    overflow: hidden;
+}
+
+/* Sophisticated Radar Sweep */
+.radar-sweep {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: conic-gradient(from 0deg,
+            rgba(6, 182, 212, 0.4) 0deg,
+            rgba(6, 182, 212, 0.1) 20deg,
+            transparent 90deg);
+    animation: clockRotate 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+    filter: blur(2px);
+}
+
+/* Vertical Scanner Line */
+.radar-sweep::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.8), transparent);
+    transform-origin: center;
+}
+
+/* Pulsing Core */
+.clock-center {
+    width: 8px;
+    height: 8px;
+    background: #06b6d4;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    box-shadow: 0 0 15px #06b6d4, 0 0 30px rgba(6, 182, 212, 0.5);
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.clock-hand-hour {
+    width: 3px;
+    height: 35px;
+    /* Scaled */
+    background: linear-gradient(to top, #06b6d4, rgba(6, 182, 212, 0.2));
+    position: absolute;
+    bottom: 50%;
+    left: calc(50% - 1.5px);
+    transform-origin: bottom center;
+    border-radius: 3px;
+    animation: clockRotate 20s linear infinite;
+    z-index: 5;
+}
+
+.clock-hand-minute {
+    width: 2px;
+    height: 50px;
+    /* Scaled */
+    background: linear-gradient(to top, #38bdf8, transparent);
+    position: absolute;
+    bottom: 50%;
+    left: calc(50% - 1px);
+    transform-origin: bottom center;
+    border-radius: 2px;
+    animation: clockRotate 3s linear infinite;
+    z-index: 4;
+}
+
+/* Orbital Particles */
+.clock-hand-minute::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -2px;
+    width: 6px;
+    height: 6px;
+    background: #38bdf8;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #38bdf8;
+}
+
+.clock-marker-outer {
+    position: absolute;
+    width: 180px;
+    /* Scaled */
+    height: 180px;
+    top: -30px;
+    left: -30px;
+    pointer-events: none;
+}
+
+.clock-tick-outer {
+    position: absolute;
+    width: 2px;
+    height: 10px;
+    background: rgba(6, 182, 212, 0.2);
+    left: calc(50% - 1px);
+    transform-origin: center 90px;
+    transition: all 0.3s ease;
+}
+
+.clock-tick {
+    position: absolute;
+    width: 1px;
+    height: 6px;
+    background: rgba(6, 182, 212, 0.4);
+    left: calc(50% - 0.5px);
+    transform-origin: center 60px;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0.7;
+    }
+}
+
+@keyframes clockRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   ANIMATED CALENDAR
+   ============================================ */
+.calendar-view {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    background: #f8fafc;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.calendar-month-title {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1.1rem;
+}
+
+.calendar-nav-btn {
+    background: #f1f5f9;
+    border: none;
+    padding: 0.4rem;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.calendar-nav-btn:hover:not(:disabled) {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.calendar-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.calendar-day.disabled {
+    background: #f8fafc;
+    color: #cbd5e1;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day-label {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    /* Darker slate for readability */
+    text-transform: uppercase;
+    padding-bottom: 0.5rem;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #334155;
+    /* Solid slate text */
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    background: transparent;
+    /* Remove solid white */
+    border: 1px solid transparent;
+}
+
+.calendar-day:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.calendar-day.selected-start,
+.calendar-day.selected-end {
+    background: linear-gradient(135deg, #FF9900 0%, #FFB84D 100%);
+    color: white !important;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+    z-index: 2;
+}
+
+.calendar-day.selected-start {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.calendar-day.selected-end {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.calendar-day.in-range {
+    background: rgba(255, 153, 0, 0.1);
+    /* Subtle orange tint */
+    border-radius: 0;
+    /* Continuous connection */
+    color: #FF9900;
+    font-weight: 600;
+}
+
+.calendar-day.active {
+    background: linear-gradient(135deg, #FF9900 0%, #FFB84D 100%);
+    /* AWS Orange active state */
+    color: white !important;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+    border: none;
+    /* Clear selection */
+}
+
+.calendar-day.today {
+    color: #FF9900;
+    font-weight: 800;
+    position: relative;
+    border: none;
+}
+
+/* Position dots differently if selected/in-range */
+.calendar-day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    background: #FF9900;
+    border-radius: 50%;
+    z-index: 5;
+}
+
+.calendar-day.today.selected-start::after,
+.calendar-day.today.selected-end::after {
+    background: white;
+    bottom: 4px;
+}
+
+.calendar-day.today.in-range::after {
+    background: #FF9900;
+}
+
+/* Modal Footer */
+.schedule-modal-footer {
+    padding: 1.5rem 2rem;
+    background: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-schedule-save {
+    background: #2563eb;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-schedule-save:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}

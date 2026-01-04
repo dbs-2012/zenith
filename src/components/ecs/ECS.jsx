@@ -18,12 +18,19 @@ import {
     CheckCircle2,
     XCircle
 } from 'lucide-react';
+import EKGSignal from '../common/EKGSignal';
 import '../../css/ecs/ECS.css';
+import '../../css/ecs/ScheduleModal.css';
+import { X, Minus, Plus, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import ScheduleModal from './ScheduleModal';
 
 function ECS() {
     const [searchQuery, setSearchQuery] = useState('');
     const [uploadedFile, setUploadedFile] = useState(null);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+    const [selectedCluster, setSelectedCluster] = useState(null);
+    const [scheduledRanges, setScheduledRanges] = useState({}); // Stores ranges per cluster ID
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -105,8 +112,23 @@ function ECS() {
     };
 
     const handleScheduleClick = (clusterId) => {
-        // Teammate will implement schedule modal/logic here
-        console.log('Schedule clicked for cluster:', clusterId);
+        const cluster = clusters.find(c => c.id === clusterId);
+        setSelectedCluster(cluster);
+        setIsScheduleModalOpen(true);
+    };
+
+    const handleConfirmSchedule = (range) => {
+        if (selectedCluster) {
+            setScheduledRanges(prev => ({
+                ...prev,
+                [selectedCluster.id]: range
+            }));
+            console.log(`Schedule confirmed for ${selectedCluster.name}:`, {
+                from: range.from.toLocaleDateString(),
+                to: range.to.toLocaleDateString()
+            });
+            setIsScheduleModalOpen(false);
+        }
     };
 
     const filteredClusters = clusters.filter(cluster =>
@@ -154,7 +176,7 @@ function ECS() {
                             <p className="stat-label-modern">Total Clusters</p>
                         </div>
                         <div className="stat-trend">
-                            <TrendingUp size={16} />
+                            <EKGSignal size="small" variant="trend" type="success" />
                         </div>
                     </div>
 
@@ -167,7 +189,7 @@ function ECS() {
                             <p className="stat-label-modern">Total Services</p>
                         </div>
                         <div className="stat-trend">
-                            <Activity size={16} />
+                            <EKGSignal size="medium" type="active" />
                         </div>
                     </div>
 
@@ -273,7 +295,7 @@ function ECS() {
                                     </td>
                                     <td className="td-center">
                                         <div className="service-count active-count">
-                                            <Activity size={16} />
+                                            <EKGSignal size="small" type="active" />
                                             <span>{cluster.activeServices}</span>
                                         </div>
                                     </td>
@@ -318,6 +340,13 @@ function ECS() {
                     )}
                 </div>
             </div>
+            {/* Schedule Modal Component */}
+            <ScheduleModal
+                isOpen={isScheduleModalOpen}
+                cluster={selectedCluster}
+                onClose={() => setIsScheduleModalOpen(false)}
+                onConfirm={handleConfirmSchedule}
+            />
         </div>
     );
 }

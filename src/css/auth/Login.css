@@ -1,10 +1,19 @@
-/* Login Container */
 .login-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: transparent;
+    background:
+        radial-gradient(circle at 85% 90%, rgba(255, 107, 53, 0.2), transparent 60%),
+        /* Toned down Orange */
+        radial-gradient(circle at 10% 80%, rgba(236, 72, 153, 0.15), transparent 60%),
+        /* Toned down Pink */
+        radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.1), transparent 50%),
+        /* Subtler Blue */
+        linear-gradient(rgba(241, 245, 249, 0.8), rgba(241, 245, 249, 0.8)),
+        /* More opaque base overlay for a cleaner look */
+        url('../../assets/cloud-bg.png') no-repeat center center;
+    background-size: cover;
     position: relative;
     overflow: hidden;
     padding: 1rem;
@@ -14,11 +23,8 @@
 
 /* Animated Background Shapes */
 .background-shapes {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: 0;
+    display: none;
+    /* Hide blobs to show the new background image clearly */
 }
 
 .shape {
@@ -89,25 +95,20 @@
 .login-card {
     position: relative;
     z-index: 1;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 1.5rem 2rem;
+    background: #FFFFFF;
+    /* Pure white card as seen in image */
+    border-radius: 24px;
+    padding: 3rem;
     width: 100%;
-    max-width: 420px;
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.08),
-        0 0 0 1px rgba(255, 255, 255, 0.8),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 480px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 20px 48px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
 }
 
 .login-card:hover {
     transform: translateY(-5px);
-    box-shadow:
-        0 12px 48px rgba(0, 0, 0, 0.12),
-        0 0 0 1px rgba(255, 255, 255, 0.9),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
 /* Header */
@@ -129,21 +130,20 @@
 }
 
 .login-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #4398ee 10%, #671988 90%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0 0 0.35rem 0;
-    letter-spacing: -0.5px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #4F46E5;
+    /* Professional Indigo/Purple */
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.01em;
 }
 
 .login-subtitle {
-    color: rgba(0, 0, 0, 0.55);
-    font-size: 0.8rem;
+    color: #64748B;
+    font-size: 0.875rem;
     margin: 0;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 /* Form */
@@ -184,29 +184,35 @@
 
 .form-input {
     width: 100%;
-    padding: 0.65rem 1rem 0.65rem 2.75rem;
-    background: rgba(255, 255, 255, 0.8);
-    border: 1.5px solid rgba(0, 0, 0, 0.12);
-    border-radius: 10px;
-    color: #1a1a1a;
-    font-size: 0.875rem;
-    transition: all 0.3s ease;
+    padding: 0.875rem 1rem 0.875rem 2.75rem;
+    background: #F8FAFC;
+    border: 1px solid var(--border-medium);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     outline: none;
 }
 
 .form-input::placeholder {
-    color: rgba(0, 0, 0, 0.35);
+    color: var(--text-muted);
 }
 
 .form-input:focus {
-    background: rgba(255, 255, 255, 1);
-    border-color: #ff9a56;
-    box-shadow: 0 0 0 3px rgba(255, 154, 86, 0.15);
+    background: white;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .form-input:focus+.input-icon,
 .input-wrapper:focus-within .input-icon {
-    color: #ff7043;
+    color: var(--accent-primary);
+}
+
+.lock-icon {
+    color: #FF9900 !important;
+    /* Orange by default as requested */
+    opacity: 1 !important;
 }
 
 /* Password Toggle */
@@ -236,8 +242,8 @@
 }
 
 .password-toggle:hover {
-    color: #ff7043;
-    background: rgba(255, 112, 67, 0.08);
+    color: var(--accent-primary);
+    background: rgba(59, 130, 246, 0.08);
 }
 
 .password-toggle:active {
@@ -250,21 +256,23 @@
 }
 
 
-/* Login Button */
 .login-button {
-    margin-top: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%);
+    margin-top: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #FF9900 0%, #FFB84D 100%);
+    /* AWS Orange */
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     color: white;
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+    box-shadow: 0 10px 20px rgba(255, 153, 0, 0.2);
     position: relative;
     overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .login-button::before {
@@ -349,9 +357,8 @@
     gap: 0.5rem;
 }
 
-.footer-text::before {
-    content: '🔒';
-    font-size: 1rem;
+.footer-lock {
+    color: #FF9900;
 }
 
 /* Responsive Design */
