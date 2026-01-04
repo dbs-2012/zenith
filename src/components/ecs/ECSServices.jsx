@@ -14,6 +14,7 @@ import {
     X,
     Activity
 } from 'lucide-react';
+import EKGSignal from '../common/EKGSignal';
 import '../../css/ecs/ECSServices.css';
 
 function ECSServices() {
@@ -131,7 +132,7 @@ function ECSServices() {
             <div className="services-controls">
                 <div className="cluster-stats">
                     <div className="stat-item">
-                        <Activity size={18} className="stat-icon running" />
+                        <EKGSignal className="stat-icon running" type="success" size="medium" />
                         <span>{services.filter(s => s.status === 'running').length} Running</span>
                     </div>
                     <div className="stat-item">
@@ -220,65 +221,67 @@ function ECSServices() {
             </div>
 
             {/* Edit Modal */}
-            {isEditModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <div className="modal-title-wrapper">
-                                <h2>Edit Service Tasks</h2>
-                                <p className="modal-subtitle">Adjust settings for <strong>{selectedService?.name}</strong></p>
+            {
+                isEditModalOpen && (
+                    <div className="modal-overlay">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <div className="modal-title-wrapper">
+                                    <h2>Edit Service Tasks</h2>
+                                    <p className="modal-subtitle">Adjust settings for <strong>{selectedService?.name}</strong></p>
+                                </div>
+                                <button onClick={() => setIsEditModalOpen(false)} className="close-btn">
+                                    <X size={20} />
+                                </button>
                             </div>
-                            <button onClick={() => setIsEditModalOpen(false)} className="close-btn">
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="form-group">
-                                <label>Minimum Tasks</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={editForm.min}
-                                    onChange={(e) => setEditForm({ ...editForm, min: parseInt(e.target.value) || 0 })}
-                                />
+                            <div className="modal-body">
+                                <div className="form-group">
+                                    <label>Minimum Tasks</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={editForm.min}
+                                        onChange={(e) => setEditForm({ ...editForm, min: parseInt(e.target.value) || 0 })}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Desired Tasks</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={editForm.desired}
+                                        onChange={(e) => setEditForm({ ...editForm, desired: parseInt(e.target.value) || 0 })}
+                                        className={!isFormValid ? 'input-error' : ''}
+                                    />
+                                    {!isFormValid && (
+                                        <span className="error-text">Desired must be between Min and Max</span>
+                                    )}
+                                </div>
+                                <div className="form-group">
+                                    <label>Maximum Tasks</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        value={editForm.max}
+                                        onChange={(e) => setEditForm({ ...editForm, max: parseInt(e.target.value) || 0 })}
+                                    />
+                                </div>
                             </div>
-                            <div className="form-group">
-                                <label>Desired Tasks</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={editForm.desired}
-                                    onChange={(e) => setEditForm({ ...editForm, desired: parseInt(e.target.value) || 0 })}
-                                    className={!isFormValid ? 'input-error' : ''}
-                                />
-                                {!isFormValid && (
-                                    <span className="error-text">Desired must be between Min and Max</span>
-                                )}
+                            <div className="modal-footer">
+                                <button
+                                    onClick={handleEditSave}
+                                    className={`btn-save ${!isFormValid ? 'disabled' : ''}`}
+                                    disabled={!isFormValid}
+                                >
+                                    <Save size={18} />
+                                    Save Changes
+                                </button>
                             </div>
-                            <div className="form-group">
-                                <label>Maximum Tasks</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={editForm.max}
-                                    onChange={(e) => setEditForm({ ...editForm, max: parseInt(e.target.value) || 0 })}
-                                />
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button
-                                onClick={handleEditSave}
-                                className={`btn-save ${!isFormValid ? 'disabled' : ''}`}
-                                disabled={!isFormValid}
-                            >
-                                <Save size={18} />
-                                Save Changes
-                            </button>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
 
