@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../css/auth/Login.css';
 import awsLogo from '../../assets/aws-logo.png';
-import DynamicBackground from '../background/DynamicBackground';
 
 function Login() {
     const [username, setUsername] = useState('');
@@ -28,7 +27,12 @@ function Login() {
 
     return (
         <div className="login-container">
-            <DynamicBackground />
+            <div className="background-shapes">
+                <div className="shape shape-1"></div>
+                <div className="shape shape-2"></div>
+                <div className="shape shape-3"></div>
+                <div className="shape shape-4"></div>
+            </div>
 
             <div className="login-card">
                 <div className="login-header">

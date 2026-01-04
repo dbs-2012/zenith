@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft,
+    ChevronLeft,
     Search,
-    PlayCircle,
-    StopCircle,
+    Play,
+    Square,
     Calendar,
     Edit2,
     CheckCircle2,
@@ -12,7 +12,12 @@ import {
     Server,
     Save,
     X,
-    Activity
+    Activity,
+    Zap,
+    AlertCircle,
+    Minus,
+    Plus,
+    ArrowRight
 } from 'lucide-react';
 import '../../css/ecs/ECSServices.css';
 
@@ -102,17 +107,12 @@ function ECSServices() {
 
     return (
         <div className="ecs-services-container">
-            {/* Header Section */}
-            <div className="services-header">
-                <div className="services-header-left">
-                    <button onClick={handleBack} className="back-button">
-                        <ArrowLeft size={24} />
-                    </button>
-                    <div className="services-header-title">
-                        <div className="services-breadcrumb">ECS Clusters / Services</div>
-                        <h1>{clusterName}</h1>
-                    </div>
-                </div>
+            {/* Top Navigation Bar */}
+            <div className="ecs-page-header">
+                <button onClick={handleBack} className="back-button">
+                    <ChevronLeft size={20} />
+                    <span>Back</span>
+                </button>
 
                 <div className="services-search-wrapper">
                     <Search className="services-search-icon" size={20} />
@@ -127,32 +127,48 @@ function ECSServices() {
                 </div>
             </div>
 
-            {/* Controls Section */}
-            <div className="services-controls">
-                <div className="cluster-stats">
-                    <div className="stat-item">
-                        <Activity size={18} className="stat-icon running" />
-                        <span>{services.filter(s => s.status === 'running').length} Running</span>
-                    </div>
-                    <div className="stat-item">
-                        <StopCircle size={18} className="stat-icon stopped" />
-                        <span>{services.filter(s => s.status === 'stopped').length} Stopped</span>
-                    </div>
-                </div>
+            {/* Hero Command Center */}
+            <div className="ecs-hero-section">
+                <div className="hero-content">
+                    <h1 className="cluster-title">{clusterName}</h1>
 
-                <div className="services-action-buttons">
-                    <button className="btn-action btn-start" onClick={handleStartAll}>
-                        <PlayCircle size={18} />
-                        <span>Start All</span>
-                    </button>
-                    <button className="btn-action btn-stop" onClick={handleStopAll}>
-                        <StopCircle size={18} />
-                        <span>Stop All</span>
-                    </button>
-                    <button className="btn-action btn-schedule" onClick={handleSchedule}>
-                        <Calendar size={18} />
-                        <span>Schedule</span>
-                    </button>
+                    <div className="hero-controls-bar">
+                        <div className="cluster-stats">
+                            <div className="stat-card running-card">
+                                <div className="stat-icon-wrapper">
+                                    <Zap size={24} />
+                                </div>
+                                <div className="stat-info">
+                                    <span className="stat-value">{services.filter(s => s.status === 'running').length}</span>
+                                    <span className="stat-label">Running Services</span>
+                                </div>
+                            </div>
+                            <div className="stat-card stopped-card">
+                                <div className="stat-icon-wrapper">
+                                    <AlertCircle size={24} />
+                                </div>
+                                <div className="stat-info">
+                                    <span className="stat-value">{services.filter(s => s.status === 'stopped').length}</span>
+                                    <span className="stat-label">Stopped Services</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="services-action-buttons">
+                            <button className="btn-action btn-start" onClick={handleStartAll}>
+                                <Play size={18} fill="currentColor" />
+                                <span>Start All</span>
+                            </button>
+                            <button className="btn-action btn-stop" onClick={handleStopAll}>
+                                <Square size={18} fill="currentColor" />
+                                <span>Stop All</span>
+                            </button>
+                            <button className="btn-action btn-schedule" onClick={handleSchedule}>
+                                <Calendar size={18} />
+                                <span>Schedule</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -174,7 +190,7 @@ function ECSServices() {
                         {filteredServices.map((service) => (
                             <tr key={service.id} className="service-row">
                                 <td className="service-name-cell">
-                                    <Server size={18} className="service-icon" />
+                                    <Server size={24} className="service-icon" />
                                     {service.name}
                                 </td>
                                 <td><span className="task-count">{service.min}</span></td>
@@ -222,57 +238,116 @@ function ECSServices() {
             {/* Edit Modal */}
             {isEditModalOpen && (
                 <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <div className="modal-title-wrapper">
-                                <h2>Edit Service Tasks</h2>
-                                <p className="modal-subtitle">Adjust settings for <strong>{selectedService?.name}</strong></p>
-                            </div>
-                            <button onClick={() => setIsEditModalOpen(false)} className="close-btn">
-                                <X size={20} />
+                    <div className="modal-minimal-content">
+                        <div className="modal-minimal-header">
+                            <span className="modal-sublabel">Configuration</span>
+                            <h2 className="service-minimal-title">{selectedService?.name}</h2>
+                            <button onClick={() => setIsEditModalOpen(false)} className="close-minimal-btn">
+                                <X size={24} />
                             </button>
                         </div>
-                        <div className="modal-body">
-                            <div className="form-group">
-                                <label>Minimum Tasks</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={editForm.min}
-                                    onChange={(e) => setEditForm({ ...editForm, min: parseInt(e.target.value) || 0 })}
-                                />
+
+                        <div className="modal-stepper-body">
+                            {/* Minimum */}
+                            <div className="stepper-row highlight-row">
+                                <div className="stepper-label-group">
+                                    <span className="step-label">Minimum</span>
+                                    <span className="step-desc">Lowest scaling limit</span>
+                                </div>
+                                <div className="stepper-control">
+                                    <button
+                                        className="step-btn"
+                                        onClick={() => setEditForm(prev => ({ ...prev, min: Math.max(0, prev.min - 1) }))}
+                                    >
+                                        <Minus size={18} />
+                                    </button>
+                                    <input
+                                        type="number"
+                                        className="step-input"
+                                        value={editForm.min}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, min: parseInt(e.target.value) || 0 }))}
+                                    />
+                                    <button
+                                        className="step-btn"
+                                        onClick={() => setEditForm(prev => ({ ...prev, min: prev.min + 1 }))}
+                                    >
+                                        <Plus size={18} />
+                                    </button>
+                                </div>
                             </div>
-                            <div className="form-group">
-                                <label>Desired Tasks</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={editForm.desired}
-                                    onChange={(e) => setEditForm({ ...editForm, desired: parseInt(e.target.value) || 0 })}
-                                    className={!isFormValid ? 'input-error' : ''}
-                                />
-                                {!isFormValid && (
-                                    <span className="error-text">Desired must be between Min and Max</span>
-                                )}
+
+                            {/* Desired */}
+                            <div className="stepper-row highlight-row">
+                                <div className="stepper-label-group">
+                                    <span className="step-label">Desired</span>
+                                    <span className="step-desc">Target task count</span>
+                                </div>
+                                <div className="stepper-control">
+                                    <button
+                                        className="step-btn"
+                                        onClick={() => setEditForm(prev => ({ ...prev, desired: Math.max(0, prev.desired - 1) }))}
+                                    >
+                                        <Minus size={18} />
+                                    </button>
+                                    <input
+                                        type="number"
+                                        className="step-input"
+                                        value={editForm.desired}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, desired: parseInt(e.target.value) || 0 }))}
+                                    />
+                                    <button
+                                        className="step-btn"
+                                        onClick={() => setEditForm(prev => ({ ...prev, desired: prev.desired + 1 }))}
+                                    >
+                                        <Plus size={18} />
+                                    </button>
+                                </div>
                             </div>
-                            <div className="form-group">
-                                <label>Maximum Tasks</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={editForm.max}
-                                    onChange={(e) => setEditForm({ ...editForm, max: parseInt(e.target.value) || 0 })}
-                                />
+
+                            {/* Maximum */}
+                            <div className="stepper-row highlight-row">
+                                <div className="stepper-label-group">
+                                    <span className="step-label">Maximum</span>
+                                    <span className="step-desc">Highest scaling limit</span>
+                                </div>
+                                <div className="stepper-control">
+                                    <button
+                                        className="step-btn"
+                                        onClick={() => setEditForm(prev => ({ ...prev, max: Math.max(0, prev.max - 1) }))}
+                                    >
+                                        <Minus size={18} />
+                                    </button>
+                                    <input
+                                        type="number"
+                                        className="step-input"
+                                        value={editForm.max}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, max: parseInt(e.target.value) || 0 }))}
+                                    />
+                                    <button
+                                        className="step-btn"
+                                        onClick={() => setEditForm(prev => ({ ...prev, max: prev.max + 1 }))}
+                                    >
+                                        <Plus size={18} />
+                                    </button>
+                                </div>
                             </div>
+
+                            {!isFormValid && (
+                                <div className="stepper-error-message">
+                                    <AlertCircle size={16} />
+                                    <span>Desired count must be between Minimum and Maximum.</span>
+                                </div>
+                            )}
                         </div>
-                        <div className="modal-footer">
+
+                        <div className="modal-minimal-footer">
                             <button
                                 onClick={handleEditSave}
-                                className={`btn-save ${!isFormValid ? 'disabled' : ''}`}
+                                className={`btn-save-minimal ${!isFormValid ? 'disabled' : ''}`}
                                 disabled={!isFormValid}
                             >
-                                <Save size={18} />
-                                Save Changes
+                                <span>Save Changes</span>
+                                <ArrowRight size={18} />
                             </button>
                         </div>
                     </div>
