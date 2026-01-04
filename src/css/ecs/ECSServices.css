@@ -1,8 +1,6 @@
-/* Component Container */
 .ecs-services-container {
     padding: 2.5rem;
     color: var(--text-primary);
-    animation: fadeIn 0.6s ease-out;
     max-width: 1700px;
     margin: 0 auto;
 }
@@ -416,7 +414,7 @@ input:checked+.slider:before {
     background: rgba(15, 23, 42, 0.4);
     backdrop-filter: blur(8px);
     z-index: 9999;
-    animation: fadeIn 0.3s ease-out;
+    animation: none;
 }
 
 .modal-content {
@@ -523,7 +521,7 @@ input:checked+.slider:before {
 .close-btn:hover {
     background: #F1F5F9;
     color: var(--text-primary);
-    transform: rotate(90deg);
+    transform: scale(1.1);
 }
 
 .modal-header {

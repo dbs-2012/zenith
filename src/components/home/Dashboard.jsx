@@ -14,9 +14,18 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
+import { useEffect } from 'react';
 import '../../css/home/Dashboard.css';
 
 function Dashboard() {
+    const { setBgContext } = useOutletContext();
+
+    useEffect(() => {
+        // Background context is managed by user actions or specific system states
+        setBgContext('default');
+    }, [setBgContext]);
+
     const resourceCards = [
         {
             id: 'ec2',

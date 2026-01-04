@@ -131,7 +131,6 @@ function ECS() {
                 <div className="header-content">
                     <div className="header-icon-modern">
                         <Container size={36} strokeWidth={2.5} />
-                        <div className="icon-pulse"></div>
                     </div>
                     <div className="header-text">
                         <h1 className="page-title-modern">ECS Cluster Scheduler</h1>

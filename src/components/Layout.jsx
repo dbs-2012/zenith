@@ -19,8 +19,10 @@ import {
 } from 'lucide-react';
 import '../css/Layout.css';
 import '../css/body-theme.css';
+import DynamicBackground from './background/DynamicBackground';
 
 function Layout() {
+    const [bgContext, setBgContext] = useState('default');
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [isDarkTheme, setIsDarkTheme] = useState(() => {
         const savedTheme = localStorage.getItem('theme');
@@ -70,6 +72,7 @@ function Layout() {
 
     return (
         <div className="layout-container" data-theme={isDarkTheme ? 'dark' : 'light'}>
+            <DynamicBackground context={bgContext} />
             {/* Modern Header */}
             <header className="modern-header">
                 <div className="header-left">
@@ -196,7 +199,7 @@ function Layout() {
 
                 {/* Main Content */}
                 <main className="main-content">
-                    <Outlet />
+                    <Outlet context={{ bgContext, setBgContext }} />
                 </main>
             </div>
         </div>
