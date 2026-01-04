@@ -1,0 +1,85 @@
+.exception-timer-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 18px;
+    height: 18px;
+    margin-right: 6px;
+}
+
+.exception-timer-svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.timer-track {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.05);
+    stroke-width: 3;
+}
+
+.timer-progress {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
+}
+
+/* Color Stages */
+.timer-safe {
+    stroke: #10b981;
+    /* Green */
+}
+
+.timer-warning {
+    stroke: #f59e0b;
+    /* Amber */
+}
+
+.timer-critical {
+    stroke: #ef4444;
+    /* Red */
+    animation: timer-pulse 2s infinite;
+}
+
+@keyframes timer-pulse {
+    0% {
+        filter: drop-shadow(0 0 0px rgba(239, 68, 68, 0));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.6));
+    }
+
+    100% {
+        filter: drop-shadow(0 0 0px rgba(239, 68, 68, 0));
+    }
+}
+
+.exception-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.exception-badge.bg-safe {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.exception-badge.bg-warning {
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+}
+
+.exception-badge.bg-critical {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
