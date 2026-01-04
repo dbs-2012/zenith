@@ -1,0 +1,136 @@
+/* Thunderbolt Premium Animation */
+
+.thunderbolt-premium-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+
+.bolt-small {
+    width: 32px;
+    height: 32px;
+}
+
+.bolt-medium {
+    width: 48px;
+    height: 48px;
+}
+
+.bolt-large {
+    width: 80px;
+    height: 80px;
+}
+
+.bolt-svg-premium {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 5px rgba(99, 102, 241, 0.4));
+}
+
+.bolt-draw-line {
+    fill: none;
+    stroke: #6366f1;
+    stroke-width: 2;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: boltStrikeDraw 5s infinite cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Lightning Strike "Draw" Animation */
+@keyframes boltStrikeDraw {
+    0% {
+        stroke-dashoffset: 60;
+        opacity: 0;
+        fill: transparent;
+    }
+
+    5% {
+        opacity: 1;
+        stroke-dashoffset: 0;
+        fill: rgba(99, 102, 241, 0.1);
+    }
+
+    7% {
+        opacity: 0.2;
+    }
+
+    9% {
+        opacity: 0.9;
+        fill: rgba(168, 85, 247, 0.3);
+    }
+
+    11% {
+        opacity: 0.1;
+    }
+
+    13% {
+        opacity: 1;
+        fill: rgba(255, 255, 255, 0.5);
+        stroke: #ffffff;
+        filter: drop-shadow(0 0 10px #ffffff);
+    }
+
+    /* 
+    10% {
+        opacity: 0;
+        stroke-dashoffset: -60;
+        fill: transparent;
+    } */
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Strike Flash Background */
+.strike-flash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    animation: flashImpact 5s infinite linear;
+}
+
+@keyframes flashImpact {
+
+    0%,
+    12% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    13% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(2.5);
+    }
+
+    10% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Color Variations */
+.active .bolt-draw-line {
+    stroke: #6366f1;
+    filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.8));
+}
+
+.success .bolt-draw-line {
+    stroke: #10b981;
+    filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8));
+}

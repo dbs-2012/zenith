@@ -1,0 +1,576 @@
+/* ============================================
+   ECS SERVICE UPDATES - DELTA REPORT
+   Vibrant Green/Red Design
+   ============================================ */
+
+.delta-report-page {
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.page-header-modern {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.header-content-report {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.header-left-report {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.header-icon-report {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    flex-shrink: 0;
+}
+
+.header-text-column {
+    flex: 1;
+}
+
+.tiny-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #64748b;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s;
+}
+
+.tiny-back-btn:hover {
+    color: #3b82f6;
+}
+
+.page-title-modern {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem 0;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle-modern {
+    font-size: 1rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* ============================================
+   METRICS GRID - VIBRANT CARDS
+   ============================================ */
+.delta-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.metric-card.metric-added {
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.metric-card.metric-added:hover {
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 12px 24px rgba(16, 185, 129, 0.2);
+}
+
+.metric-card.metric-deleted {
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.metric-card.metric-deleted:hover {
+    border-color: rgba(239, 68, 68, 0.4);
+    box-shadow: 0 12px 24px rgba(239, 68, 68, 0.2);
+}
+
+.metric-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.metric-added .metric-icon {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: white;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.metric-deleted .metric-icon {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+    color: white;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.metric-info {
+    flex: 1;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 0;
+    line-height: 1;
+}
+
+.metric-added .metric-value {
+    color: #10b981;
+}
+
+.metric-deleted .metric-value {
+    color: #ef4444;
+}
+
+/* ============================================
+   SEARCH BAR
+   ============================================ */
+.report-utility-bar {
+    margin-bottom: 2rem;
+}
+
+.search-box-minimal {
+    position: relative;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s;
+    max-width: 100%;
+}
+
+.search-box-minimal:focus-within {
+    border-color: #6366f1;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12), 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.search-box-minimal svg {
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.search-box-minimal input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: #1e293b;
+    outline: none;
+}
+
+.search-box-minimal input::placeholder {
+    color: #94a3b8;
+}
+
+/* ============================================
+   CLUSTER DELTA ITEMS - VIBRANT PILLS
+   ============================================ */
+.cluster-delta-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cluster-delta-item {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+}
+
+.cluster-delta-item:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.cluster-item-header {
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.cluster-name-block {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cluster-name-block .c-icon {
+    color: #6366f1;
+}
+
+.cluster-name-block h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    flex: 1;
+}
+
+.cluster-name-block .c-time {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.cluster-item-body {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+}
+
+/* ============================================
+   DELTA COLUMNS - GREEN & RED
+   ============================================ */
+.delta-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.col-title {
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.added-col .col-title {
+    color: #10b981;
+}
+
+.deleted-col .col-title {
+    color: #ef4444;
+}
+
+.pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+/* ============================================
+   DELTA PILLS - VIBRANT DESIGN
+   ============================================ */
+.delta-pill {
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 4px solid;
+    display: flex;
+    align-items: center;
+}
+
+.delta-pill.added {
+    background: #DCFCE7;
+    color: #166534;
+    border-left-color: #10b981;
+}
+
+.delta-pill.added:hover {
+    background: #BBF7D0;
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.delta-pill.deleted {
+    background: #FEE2E2;
+    color: #991B1B;
+    border-left-color: #ef4444;
+}
+
+.delta-pill.deleted span {
+    text-decoration: line-through;
+}
+
+.delta-pill.deleted:hover {
+    background: #FECACA;
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.no-change {
+    padding: 1rem;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+.no-report-data {
+    padding: 4rem;
+    text-align: center;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.no-report-data svg {
+    color: #94a3b8;
+}
+
+/* ============================================
+   LOADER
+   ============================================ */
+.updates-loader-wrapper {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loader-orbit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.loader-orbit span {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.spin-slow {
+    animation: spin 2s linear infinite;
+    color: #6366f1;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   DARK THEME
+   ============================================ */
+.layout-container[data-theme="dark"] .delta-report-page {
+    color: #e2e8f0;
+}
+
+.layout-container[data-theme="dark"] .page-header-modern {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.layout-container[data-theme="dark"] .page-title-modern {
+    color: #f1f5f9;
+}
+
+.layout-container[data-theme="dark"] .page-subtitle-modern {
+    color: #94a3b8;
+}
+
+.layout-container[data-theme="dark"] .tiny-back-btn {
+    color: #94a3b8;
+}
+
+.layout-container[data-theme="dark"] .tiny-back-btn:hover {
+    color: #60a5fa;
+}
+
+.layout-container[data-theme="dark"] .metric-card {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(148, 163, 184, 0.1);
+}
+
+.layout-container[data-theme="dark"] .metric-card:hover {
+    background: rgba(30, 41, 59, 0.9);
+}
+
+.layout-container[data-theme="dark"] .metric-added .metric-icon {
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
+}
+
+.layout-container[data-theme="dark"] .metric-deleted .metric-icon {
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5);
+}
+
+.layout-container[data-theme="dark"] .metric-added .metric-value {
+    color: #34d399;
+}
+
+.layout-container[data-theme="dark"] .metric-deleted .metric-value {
+    color: #f87171;
+}
+
+.layout-container[data-theme="dark"] .search-box-minimal {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.layout-container[data-theme="dark"] .search-box-minimal:focus-within {
+    border-color: #6366f1;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.layout-container[data-theme="dark"] .search-box-minimal svg {
+    color: #64748b;
+}
+
+.layout-container[data-theme="dark"] .search-box-minimal input {
+    color: #e2e8f0;
+}
+
+.layout-container[data-theme="dark"] .search-box-minimal input::placeholder {
+    color: #64748b;
+}
+
+.layout-container[data-theme="dark"] .cluster-delta-item {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.layout-container[data-theme="dark"] .cluster-item-header {
+    background: rgba(15, 23, 42, 0.5);
+    border-bottom-color: rgba(148, 163, 184, 0.1);
+}
+
+.layout-container[data-theme="dark"] .cluster-name-block h3 {
+    color: #f1f5f9;
+}
+
+.layout-container[data-theme="dark"] .added-col .col-title {
+    color: #34d399;
+}
+
+.layout-container[data-theme="dark"] .deleted-col .col-title {
+    color: #f87171;
+}
+
+.layout-container[data-theme="dark"] .delta-pill.added {
+    background: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+    border-left-color: #34d399;
+}
+
+.layout-container[data-theme="dark"] .delta-pill.added:hover {
+    background: rgba(16, 185, 129, 0.25);
+}
+
+.layout-container[data-theme="dark"] .delta-pill.deleted {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border-left-color: #f87171;
+}
+
+.layout-container[data-theme="dark"] .delta-pill.deleted:hover {
+    background: rgba(239, 68, 68, 0.25);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .delta-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cluster-item-body {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .page-title-modern {
+        font-size: 2rem;
+    }
+
+    .metric-value {
+        font-size: 2.5rem;
+    }
+}

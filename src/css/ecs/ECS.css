@@ -35,7 +35,15 @@
     background: var(--gradient-primary);
 }
 
-.header-content {
+.header-content-cluster {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    width: 100%;
+}
+
+.header-left-cluster {
     display: flex;
     align-items: center;
     gap: 2rem;
@@ -146,12 +154,12 @@
 
 .stat-card-modern.stat-success-modern .stat-icon-modern {
     background: var(--gradient-success);
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 8px 20px rgba(197, 98, 175, 0.4) !important;
 }
 
 .stat-card-modern.stat-info-modern .stat-icon-modern {
     background: var(--gradient-cool);
-    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+    box-shadow: 0 8px 20px rgba(10, 186, 181, 0.4) !important;
 }
 
 .stat-content-modern {
@@ -417,14 +425,16 @@
     border-bottom: none;
 }
 
-.table-row-modern.exception-row {
+.table-row-modern.exception-row,
+.table-row-modern.striped-row {
     background: linear-gradient(90deg,
             rgba(251, 191, 36, 0.05) 0%,
             transparent 100%);
     border-left: 4px solid var(--accent-warning);
 }
 
-.table-row-modern.exception-row:hover {
+.table-row-modern.exception-row:hover,
+.table-row-modern.striped-row:hover {
     background: linear-gradient(90deg,
             rgba(251, 191, 36, 0.1) 0%,
             var(--surface-glass-hover) 100%);
@@ -615,7 +625,7 @@
 }
 
 .layout-container[data-theme="dark"] .exception-badge {
-    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.6), var(--glow-warning);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.6), 0 0 20px rgba(16, 185, 129, 0.4) !important;
 }
 
 .layout-container[data-theme="dark"] .schedule-btn {
@@ -664,4 +674,42 @@
         padding: 1rem 0.75rem;
         font-size: 0.875rem;
     }
+}
+
+/* Delta Updates Button Styling */
+.btn-delta-updates {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--gradient-primary);
+    color: white !important;
+    border: none;
+    border-radius: var(--radius-xl);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-md);
+    white-space: nowrap;
+}
+
+.btn-delta-updates:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 20px -5px rgba(6, 182, 212, 0.4);
+    filter: brightness(1.1);
+}
+
+.btn-delta-updates:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.btn-delta-updates .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.3rem;
+    border-radius: 50%;
+    backdrop-filter: blur(4px);
 }

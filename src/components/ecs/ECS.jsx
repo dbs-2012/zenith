@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Container,
@@ -16,9 +16,12 @@ import {
     Zap,
     TrendingUp,
     CheckCircle2,
-    XCircle
+    XCircle,
+    GitCompare
 } from 'lucide-react';
 import EKGSignal from '../common/EKGSignal';
+import ThunderboltSignal from '../common/ThunderboltSignal';
+import ECSIcon from '../common/ECSIcon';
 import ExceptionTimer from './ExceptionTimer';
 import '../../css/ecs/ECS.css';
 import '../../css/ecs/ScheduleModal.css';
@@ -35,12 +38,33 @@ function ECS() {
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
+    // Load schedules from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('lombard_ecs_schedules');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                // Convert string dates back to Date objects
+                const hydrated = {};
+                Object.keys(parsed).forEach(key => {
+                    hydrated[key] = {
+                        ...parsed[key],
+                        from: new Date(parsed[key].from),
+                        to: new Date(parsed[key].to)
+                    };
+                });
+                setScheduledRanges(hydrated);
+            } catch (e) {
+                console.error("Failed to parse schedules", e);
+            }
+        }
+    }, []);
+
     const handleClusterClick = (clusterName) => {
         navigate(`/ecs/${clusterName}`);
     };
 
-    // Sample data - will be replaced with real data
-    const clusters = [
+    const [clusters, setClusters] = useState([
         {
             id: 1,
             name: 'production-api-cluster',
@@ -48,7 +72,6 @@ function ECS() {
             runningServices: 8,
             closedServices: 0,
             computeType: 'FARGATE',
-            scheduledDays: 0,
             isException: false
         },
         {
@@ -58,9 +81,7 @@ function ECS() {
             runningServices: 10,
             closedServices: 2,
             computeType: 'ASG',
-            scheduledDays: 5,
-            totalDays: 7,
-            isException: true
+            isException: false
         },
         {
             id: 3,
@@ -69,8 +90,6 @@ function ECS() {
             runningServices: 5,
             closedServices: 0,
             computeType: 'FARGATE',
-            scheduledDays: 0,
-            totalDays: 0,
             isException: false
         },
         {
@@ -80,9 +99,7 @@ function ECS() {
             runningServices: 3,
             closedServices: 0,
             computeType: 'FARGATE',
-            scheduledDays: 3,
-            totalDays: 30,
-            isException: true
+            isException: false
         },
         {
             id: 5,
@@ -91,19 +108,26 @@ function ECS() {
             runningServices: 2,
             closedServices: 2,
             computeType: 'ASG',
-            scheduledDays: 0,
             isException: false
         }
-    ];
+    ]);
 
     const totalServices = clusters.reduce((sum, c) => sum + c.activeServices, 0);
+    const totalClustersCount = clusters.length;
 
-    const handleSync = () => {
+    // Simulation: Functional logic for data fetching
+    const fetchClusters = async () => {
+        // This will be replaced with: const response = await fetch('/api/ecs/clusters');
+        // For now, we simulate the current state being "loaded"
         setIsSyncing(true);
-        // Teammate will implement sync logic here
         setTimeout(() => {
             setIsSyncing(false);
-        }, 2000);
+            console.log('Clusters fetched from API');
+        }, 1000);
+    };
+
+    const handleSync = () => {
+        fetchClusters();
     };
 
     const handleFileUpload = (event) => {
@@ -121,26 +145,60 @@ function ECS() {
         setIsScheduleModalOpen(true);
     };
 
+    const handleRemoveSchedule = (clusterName) => {
+        const updatedRanges = { ...scheduledRanges };
+        delete updatedRanges[clusterName];
+
+        setScheduledRanges(updatedRanges);
+
+        // Get fresh copy from localStorage to ensure we only remove the specific one
+        const saved = localStorage.getItem('lombard_ecs_schedules');
+        if (saved) {
+            try {
+                const schedules = JSON.parse(saved);
+                delete schedules[clusterName];
+                localStorage.setItem('lombard_ecs_schedules', JSON.stringify(schedules));
+            } catch (e) {
+                console.error("Failed to update localStorage", e);
+            }
+        }
+        setIsScheduleModalOpen(false);
+    };
+
     const handleConfirmSchedule = (range) => {
         if (selectedCluster) {
-            const diffTime = Math.abs(range.to.getTime() - range.from.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end
+            const start = new Date(range.from);
+            start.setHours(0, 0, 0, 0);
+            const endNormal = new Date(range.to);
+            endNormal.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const total = Math.round((endNormal - start) / 86400000);
+            const remaining = Math.max(0, Math.round((endNormal - Math.max(today, start)) / 86400000));
+
+            const newSchedule = {
+                from: start.toISOString(),
+                to: endNormal.toISOString(),
+                remainingDays: remaining,
+                totalDays: total
+            };
+
+            const updatedRanges = {
+                ...scheduledRanges,
+                [selectedCluster.name]: newSchedule
+            };
 
             setScheduledRanges(prev => ({
                 ...prev,
-                [selectedCluster.id]: {
-                    from: range.from,
-                    to: range.to,
-                    remainingDays: diffDays,
-                    totalDays: diffDays
+                [selectedCluster.name]: {
+                    ...newSchedule,
+                    from: start,
+                    to: endNormal
                 }
             }));
 
-            console.log(`Schedule confirmed for ${selectedCluster.name}:`, {
-                from: range.from.toLocaleDateString(),
-                to: range.to.toLocaleDateString(),
-                duration: diffDays
-            });
+            localStorage.setItem('lombard_ecs_schedules', JSON.stringify(updatedRanges));
             setIsScheduleModalOpen(false);
         }
     };
@@ -164,16 +222,28 @@ function ECS() {
         <div className="ecs-page">
             {/* Page Header */}
             <div className="page-header-modern">
-                <div className="header-content">
-                    <div className="header-icon-modern">
-                        <Container size={36} strokeWidth={2.5} />
+                <div className="header-content-cluster">
+                    <div className="header-left-cluster">
+                        <div className="header-icon-modern">
+                            <ECSIcon size={64} />
+                        </div>
+                        <div className="header-text">
+                            <h1 className="page-title-modern">ECS Cluster Scheduler</h1>
+                            {/* <p className="page-subtitle-modern">
+                                Automated cluster management with nightly shutdown and exception handling
+                            </p> */}
+                        </div>
                     </div>
-                    <div className="header-text">
-                        <h1 className="page-title-modern">ECS Cluster Scheduler</h1>
-                        <p className="page-subtitle-modern">
-                            Automated cluster management with nightly shutdown and exception handling
-                        </p>
-                    </div>
+
+                    <button
+                        className="btn-delta-updates"
+                        onClick={() => navigate('/ecs/updates')}
+                    >
+                        <div className="icon-wrapper">
+                            <GitCompare size={20} />
+                        </div>
+                        <span>Delta Updates</span>
+                    </button>
                 </div>
             </div>
 
@@ -183,10 +253,10 @@ function ECS() {
                 <div className="stats-cards-modern">
                     <div className="stat-card-modern stat-primary-modern">
                         <div className="stat-icon-modern">
-                            <Container size={28} />
+                            <ECSIcon size={60} />
                         </div>
                         <div className="stat-content-modern">
-                            <h3 className="stat-value-modern">{clusters.length}</h3>
+                            <h3 className="stat-value-modern">{totalClustersCount}</h3>
                             <p className="stat-label-modern">Total Clusters</p>
                         </div>
                         <div className="stat-trend">
@@ -213,12 +283,12 @@ function ECS() {
                         </div>
                         <div className="stat-content-modern">
                             <h3 className="stat-value-modern">
-                                {clusters.filter(c => c.isException).length}
+                                {Object.keys(scheduledRanges).length}
                             </h3>
                             <p className="stat-label-modern">Active Exceptions</p>
                         </div>
                         <div className="stat-trend">
-                            <Zap size={16} />
+                            <ThunderboltSignal size="small" type="active" />
                         </div>
                     </div>
                 </div>
@@ -274,7 +344,7 @@ function ECS() {
                 <div className="table-header-modern">
                     <h3 className="table-title">Cluster Schedule Management</h3>
                     <p className="table-subtitle">
-                        Manage automated shutdown schedules and exceptions
+                        Manage automated schedules and exceptions
                     </p>
                 </div>
 
@@ -291,26 +361,56 @@ function ECS() {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredClusters.map((cluster) => (
-                                <tr key={cluster.id} className={`table-row-modern ${cluster.isException ? 'exception-row' : ''}`}>
+                            {filteredClusters.map((cluster, index) => (
+                                <tr key={cluster.id} className={`table-row-modern ${index % 2 !== 0 ? 'striped-row' : ''}`}>
                                     <td className="cluster-name-modern clickable-cell" onClick={() => handleClusterClick(cluster.name)}>
                                         <div className="cluster-info">
                                             <Container size={20} className="cluster-icon-modern" />
                                             <div className="cluster-details">
                                                 <span className="cluster-name-text">{cluster.name}</span>
-                                                {(cluster.isException || scheduledRanges[cluster.id]) && (
+                                                {(cluster.isException || scheduledRanges[cluster.name]) && (
                                                     <span className={`exception-badge ${(() => {
-                                                        const data = scheduledRanges[cluster.id] || { remainingDays: cluster.scheduledDays, totalDays: cluster.totalDays };
-                                                        if (data.remainingDays <= 1) return 'bg-critical';
-                                                        if ((data.remainingDays / data.totalDays) <= 0.5) return 'bg-warning';
+                                                        const data = scheduledRanges[cluster.name];
+                                                        if (!data) return 'bg-safe';
+
+                                                        const start = new Date(data.from);
+                                                        start.setHours(0, 0, 0, 0);
+                                                        const end = new Date(data.to);
+                                                        end.setHours(0, 0, 0, 0);
+                                                        const today = new Date();
+                                                        today.setHours(0, 0, 0, 0);
+
+                                                        const total = Math.round((end - start) / 86400000);
+                                                        const remaining = Math.max(0, Math.round((end - Math.max(today, start)) / 86400000));
+
+                                                        if (remaining <= 1) return 'bg-critical';
+                                                        if ((remaining / total) <= 0.5) return 'bg-warning';
                                                         return 'bg-safe';
-                                                    })()
-                                                        }`}>
-                                                        <ExceptionTimer
-                                                            remaining={scheduledRanges[cluster.id]?.remainingDays ?? cluster.scheduledDays}
-                                                            total={scheduledRanges[cluster.id]?.totalDays ?? cluster.totalDays}
-                                                        />
-                                                        Active {scheduledRanges[cluster.id]?.remainingDays ?? cluster.scheduledDays} {(scheduledRanges[cluster.id]?.remainingDays ?? cluster.scheduledDays) === 1 ? 'Day' : 'Days'}
+                                                    })()}`}>
+                                                        {(() => {
+                                                            const data = scheduledRanges[cluster.name];
+                                                            if (!data) return null;
+
+                                                            const start = new Date(data.from);
+                                                            start.setHours(0, 0, 0, 0);
+                                                            const end = new Date(data.to);
+                                                            end.setHours(0, 0, 0, 0);
+                                                            const today = new Date();
+                                                            today.setHours(0, 0, 0, 0);
+
+                                                            const remaining = Math.max(0, Math.round((end - Math.max(today, start)) / 86400000));
+                                                            const total = Math.round((end - start) / 86400000);
+
+                                                            return (
+                                                                <>
+                                                                    <ExceptionTimer
+                                                                        remaining={remaining}
+                                                                        total={total}
+                                                                    />
+                                                                    Active {remaining} {remaining === 1 ? 'Day' : 'Days'}
+                                                                </>
+                                                            );
+                                                        })()}
                                                     </span>
                                                 )}
                                             </div>
@@ -367,9 +467,10 @@ function ECS() {
             <ScheduleModal
                 isOpen={isScheduleModalOpen}
                 cluster={selectedCluster}
-                initialRange={selectedCluster ? scheduledRanges[selectedCluster.id] : null}
+                initialRange={selectedCluster ? scheduledRanges[selectedCluster.name] : null}
                 onClose={() => setIsScheduleModalOpen(false)}
                 onConfirm={handleConfirmSchedule}
+                onRemove={handleRemoveSchedule}
             />
         </div>
     );

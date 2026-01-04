@@ -20,6 +20,7 @@ import {
 import '../css/Layout.css';
 import '../css/body-theme.css';
 import DynamicBackground from './background/DynamicBackground';
+import ECSIcon from './common/ECSIcon';
 
 function Layout() {
     const [bgContext, setBgContext] = useState('default');
@@ -56,7 +57,7 @@ function Layout() {
     const navItems = [
         { path: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
         { path: '/ec2', icon: Server, label: 'EC2 Instances' },
-        { path: '/ecs', icon: Container, label: 'ECS Clusters' },
+        { path: '/ecs', icon: ECSIcon, label: 'ECS Clusters', isCustomIcon: true },
         { path: '/eks', icon: Boxes, label: 'EKS Clusters' },
         { path: '/ebs', icon: HardDrive, label: 'EBS Volumes' },
         { path: '/rds', icon: Database, label: 'RDS Databases' },
@@ -167,7 +168,11 @@ function Layout() {
                                         }
                                     >
                                         <div className="nav-link-content">
-                                            <Icon size={20} className="nav-icon" strokeWidth={2} />
+                                            {item.isCustomIcon ? (
+                                                <Icon size={20} className="nav-icon" />
+                                            ) : (
+                                                <Icon size={20} className="nav-icon" strokeWidth={2} />
+                                            )}
                                             {!isSidebarCollapsed && (
                                                 <span className="nav-label">{item.label}</span>
                                             )}

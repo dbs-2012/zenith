@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import '../../css/ecs/ScheduleModal.css';
 
-const ScheduleModal = ({ isOpen, onClose, onConfirm, cluster }) => {
+const ScheduleModal = ({ isOpen, onClose, onConfirm, onRemove, cluster, initialRange }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
@@ -110,7 +110,7 @@ const ScheduleModal = ({ isOpen, onClose, onConfirm, cluster }) => {
                                 ))}
                             </div>
                         </div>
-                        <span className="clock-label">24-Hour System Pulse</span>
+                        {/* <span className="clock-label">24-Hour System Pulse</span> */}
                     </div>
 
                     {/* Calendar Section */}
@@ -165,6 +165,14 @@ const ScheduleModal = ({ isOpen, onClose, onConfirm, cluster }) => {
                 </div>
 
                 <div className="schedule-modal-footer">
+                    {initialRange && (
+                        <button
+                            className="btn-schedule-remove"
+                            onClick={() => onRemove(cluster.name || cluster.id)}
+                        >
+                            Remove Schedule
+                        </button>
+                    )}
                     <button
                         className={`btn-schedule-save ${isSaving ? 'saving' : ''}`}
                         onClick={handleConfirm}

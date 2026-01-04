@@ -420,6 +420,23 @@
     transform: translateY(-1px);
 }
 
+.btn-schedule-remove {
+    background: transparent;
+    color: #ef4444;
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    border: 1px solid #fecaca;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: auto;
+}
+
+.btn-schedule-remove:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
 /* RESPONSIVE: Stack on Mobile */
 @media (max-width: 600px) {
     .schedule-modal-body {

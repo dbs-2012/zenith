@@ -2,7 +2,7 @@ import React from 'react';
 import '../../css/ecs/ExceptionTimer.css';
 
 const ExceptionTimer = ({ remaining, total }) => {
-    const percentage = Math.min(Math.max((remaining / total) * 100, 0), 100);
+    const percentage = total > 0 ? Math.min(Math.max((remaining / total) * 100, 0), 100) : 0;
     const radius = 7;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (percentage / 100) * circumference;
