@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Container,
@@ -7,219 +7,599 @@ import {
     Upload,
     Calendar,
     Server,
-    Activity,
     PlayCircle,
     StopCircle,
     Cpu,
     Clock,
-    FileUp,
-    Zap,
-    TrendingUp,
-    CheckCircle2,
+    GitCompare,
     XCircle,
-    GitCompare
+    AlertTriangle
 } from 'lucide-react';
 import EKGSignal from '../common/EKGSignal';
 import ThunderboltSignal from '../common/ThunderboltSignal';
 import ECSIcon from '../common/ECSIcon';
 import ExceptionTimer from './ExceptionTimer';
+import ScheduleModal from './ScheduleModal';
 import '../../css/ecs/ECS.css';
 import '../../css/ecs/ScheduleModal.css';
-import { X, Minus, Plus, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
-import ScheduleModal from './ScheduleModal';
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+const CLUSTER_CACHE_KEY = 'lombard_ecs_clusters_cache';
+const SCHEDULE_CACHE_KEY = 'lombard_ecs_schedules';
+const CACHE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
+
+// ============================================================================
+// STATIC DATA (Remove when API is integrated)
+// ============================================================================
+const INITIAL_CLUSTERS = [
+    {
+        id: 1,
+        name: 'production-api-cluster',
+        activeServices: 8,
+        runningServices: 8,
+        closedServices: 0,
+        computeType: 'FARGATE',
+        isException: false
+    },
+    {
+        id: 2,
+        name: 'production-web-cluster',
+        activeServices: 12,
+        runningServices: 10,
+        closedServices: 2,
+        computeType: 'ASG',
+        isException: false
+    },
+    {
+        id: 3,
+        name: 'staging-cluster',
+        activeServices: 5,
+        runningServices: 5,
+        closedServices: 0,
+        computeType: 'FARGATE',
+        isException: false
+    },
+    {
+        id: 4,
+        name: 'analytics-cluster',
+        activeServices: 3,
+        runningServices: 3,
+        closedServices: 0,
+        computeType: 'FARGATE',
+        isException: false
+    },
+    {
+        id: 5,
+        name: 'development-cluster',
+        activeServices: 4,
+        runningServices: 2,
+        closedServices: 2,
+        computeType: 'ASG',
+        isException: false
+    }
+];
+
+// ============================================================================
+// HELPER FUNCTIONS (Outside component - created once)
+// ============================================================================
+
+// Debounce hook for search optimization
+function useDebounce(value, delay) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+
+    return debouncedValue;
+}
+
+// Pure function for compute type colors
+const getComputeTypeColor = (type) => {
+    switch (type) {
+        case 'FARGATE':
+            return 'compute-fargate';
+        case 'ASG':
+            return 'compute-asg';
+        default:
+            return 'compute-fargate';
+    }
+};
+
+// Calculate schedule status (for badge color and remaining days)
+const calculateScheduleStatus = (scheduleData) => {
+    if (!scheduleData) return null;
+
+    const start = new Date(scheduleData.from);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(scheduleData.to);
+    end.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const total = Math.round((end - start) / 86400000);
+    const remaining = Math.max(0, Math.round((end - Math.max(today, start)) / 86400000));
+
+    let badgeClass = 'bg-safe';
+    if (remaining <= 1) {
+        badgeClass = 'bg-critical';
+    } else if ((remaining / total) <= 0.5) {
+        badgeClass = 'bg-warning';
+    }
+
+    return { remaining, total, badgeClass };
+};
+
+// Check if cache is still valid
+const isCacheValid = (timestamp) => {
+    if (!timestamp) return false;
+    const age = Date.now() - new Date(timestamp).getTime();
+    return age < CACHE_MAX_AGE;
+};
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
 function ECS() {
+    // ========================================================================
+    // STATE MANAGEMENT
+    // ========================================================================
     const [searchQuery, setSearchQuery] = useState('');
     const [uploadedFile, setUploadedFile] = useState(null);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
     const [selectedCluster, setSelectedCluster] = useState(null);
-    const [scheduledRanges, setScheduledRanges] = useState({}); // Stores ranges per cluster ID
+    const [scheduledRanges, setScheduledRanges] = useState({});
+    const [clusters, setClusters] = useState(INITIAL_CLUSTERS); // Using static data for now
+
+    // Error handling states
+    const [error, setError] = useState(null);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
-    // Load schedules from localStorage on mount
-    useEffect(() => {
-        const saved = localStorage.getItem('lombard_ecs_schedules');
+    // Debounced search query (300ms delay)
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+    // ========================================================================
+    // API CALLS (Currently using static data and localStorage)
+    // ========================================================================
+
+    // Fetch clusters from API
+    const fetchClusters = useCallback(async () => {
+        setIsSyncing(true);
+        setError(null);
+
+        // ⏸️ TODO: Replace simulation with actual API call
+        // Uncomment below when API is ready:
+        /*
+        try {
+            const response = await fetch('/api/ecs/clusters');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch clusters: ${response.statusText}`);
+            }
+            const data = await response.json();
+            
+            // Update state
+            setClusters(data);
+            setIsInitialLoad(false);
+            
+            // 💾 Cache to localStorage
+            localStorage.setItem(CLUSTER_CACHE_KEY, JSON.stringify({
+                data: data,
+                timestamp: new Date().toISOString()
+            }));
+            
+        } catch (err) {
+            console.error('Error fetching clusters:', err);
+            setError(err.message);
+            
+            // 📦 Try to load from cache if available
+            const cached = localStorage.getItem(CLUSTER_CACHE_KEY);
+            if (cached) {
+                try {
+                    const { data, timestamp } = JSON.parse(cached);
+                    setClusters(data);
+                    setIsInitialLoad(false);
+                    console.log('Loaded clusters from cache (age:', 
+                        Math.round((Date.now() - new Date(timestamp).getTime()) / 1000 / 60), 'minutes)');
+                } catch (e) {
+                    console.error('Failed to parse cached clusters');
+                }
+            }
+        } finally {
+            setIsSyncing(false);
+        }
+        */
+
+        // 🎭 SIMULATION (Remove when API is ready)
+        setTimeout(() => {
+            setIsSyncing(false);
+            setIsInitialLoad(false); // Mark as successfully loaded
+            console.log('Clusters synced (simulated)');
+        }, 1000);
+    }, []);
+
+    // Load schedules from localStorage/API
+    const loadSchedules = useCallback(() => {
+        // ⏸️ TODO: Replace with API call
+        // Uncomment below when API is ready:
+        /*
+        const fetchSchedules = async () => {
+            try {
+                const response = await fetch('/api/ecs/schedules');
+                if (!response.ok) throw new Error('Failed to fetch schedules');
+                
+                const data = await response.json();
+                const hydrated = Object.entries(data).reduce((acc, [key, value]) => {
+                    acc[key] = {
+                        ...value,
+                        from: new Date(value.from),
+                        to: new Date(value.to)
+                    };
+                    return acc;
+                }, {});
+                
+                setScheduledRanges(hydrated);
+                
+                // Cache to localStorage as backup
+                localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(data));
+            } catch (error) {
+                console.error('Error fetching schedules:', error);
+                // Fallback to localStorage
+                loadSchedulesFromLocalStorage();
+            }
+        };
+        fetchSchedules();
+        */
+
+        // 🎭 CURRENT: Using localStorage (will become fallback)
+        const saved = localStorage.getItem(SCHEDULE_CACHE_KEY);
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                // Convert string dates back to Date objects
-                const hydrated = {};
-                Object.keys(parsed).forEach(key => {
-                    hydrated[key] = {
-                        ...parsed[key],
-                        from: new Date(parsed[key].from),
-                        to: new Date(parsed[key].to)
+                const hydrated = Object.entries(parsed).reduce((acc, [key, value]) => {
+                    acc[key] = {
+                        ...value,
+                        from: new Date(value.from),
+                        to: new Date(value.to)
                     };
-                });
+                    return acc;
+                }, {});
                 setScheduledRanges(hydrated);
             } catch (e) {
-                console.error("Failed to parse schedules", e);
+                console.error("Failed to parse schedules from localStorage", e);
             }
         }
     }, []);
 
-    const handleClusterClick = (clusterName) => {
-        navigate(`/ecs/${clusterName}`);
-    };
+    // ========================================================================
+    // EFFECTS
+    // ========================================================================
 
-    const [clusters, setClusters] = useState([
-        {
-            id: 1,
-            name: 'production-api-cluster',
-            activeServices: 8,
-            runningServices: 8,
-            closedServices: 0,
-            computeType: 'FARGATE',
-            isException: false
-        },
-        {
-            id: 2,
-            name: 'production-web-cluster',
-            activeServices: 12,
-            runningServices: 10,
-            closedServices: 2,
-            computeType: 'ASG',
-            isException: false
-        },
-        {
-            id: 3,
-            name: 'staging-cluster',
-            activeServices: 5,
-            runningServices: 5,
-            closedServices: 0,
-            computeType: 'FARGATE',
-            isException: false
-        },
-        {
-            id: 4,
-            name: 'analytics-cluster',
-            activeServices: 3,
-            runningServices: 3,
-            closedServices: 0,
-            computeType: 'FARGATE',
-            isException: false
-        },
-        {
-            id: 5,
-            name: 'development-cluster',
-            activeServices: 4,
-            runningServices: 2,
-            closedServices: 2,
-            computeType: 'ASG',
-            isException: false
+    // Initial data load
+    useEffect(() => {
+        // Try to load cached clusters first (instant display)
+        const cached = localStorage.getItem(CLUSTER_CACHE_KEY);
+        if (cached) {
+            try {
+                const { data, timestamp } = JSON.parse(cached);
+                setClusters(data);
+                setIsInitialLoad(false); // We have cached data
+
+                if (!isCacheValid(timestamp)) {
+                    console.log('Cache is old, will fetch fresh data');
+                }
+            } catch (e) {
+                console.error('Failed to load cache');
+            }
         }
-    ]);
 
-    const totalServices = clusters.reduce((sum, c) => sum + c.activeServices, 0);
-    const totalClustersCount = clusters.length;
-
-    // Simulation: Functional logic for data fetching
-    const fetchClusters = async () => {
-        // This will be replaced with: const response = await fetch('/api/ecs/clusters');
-        // For now, we simulate the current state being "loaded"
-        setIsSyncing(true);
-        setTimeout(() => {
-            setIsSyncing(false);
-            console.log('Clusters fetched from API');
-        }, 1000);
-    };
-
-    const handleSync = () => {
+        // Load schedules and fetch fresh cluster data
+        loadSchedules();
         fetchClusters();
-    };
+    }, [loadSchedules, fetchClusters]);
 
-    const handleFileUpload = (event) => {
+    // ========================================================================
+    // MEMOIZED CALCULATIONS
+    // ========================================================================
+
+    // Calculate stats (memoized)
+    const stats = useMemo(() => ({
+        totalServices: clusters.reduce((sum, c) => sum + c.activeServices, 0),
+        totalClustersCount: clusters.length,
+        activeExceptions: Object.keys(scheduledRanges).length
+    }), [clusters, scheduledRanges]);
+
+    // Filtered clusters with pre-calculated schedule status (memoized)
+    const filteredClustersWithStatus = useMemo(() => {
+        return clusters
+            .filter(cluster =>
+                cluster.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+            )
+            .map(cluster => ({
+                ...cluster,
+                scheduleStatus: calculateScheduleStatus(scheduledRanges[cluster.name]),
+                hasException: cluster.isException || !!scheduledRanges[cluster.name]
+            }));
+    }, [clusters, debouncedSearchQuery, scheduledRanges]);
+
+    // ========================================================================
+    // EVENT HANDLERS (All memoized with useCallback)
+    // ========================================================================
+
+    const handleClusterClick = useCallback((clusterName) => {
+        navigate(`/ecs/${clusterName}`);
+    }, [navigate]);
+
+    const handleSync = useCallback(() => {
+        fetchClusters();
+    }, [fetchClusters]);
+
+    const handleFileUpload = useCallback((event) => {
         const file = event.target.files[0];
         if (file) {
             setUploadedFile(file);
-            // Teammate will implement file processing logic here
+
+            // ⏸️ TODO: Process and upload file to API
+            // Uncomment when API is ready:
+            /*
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/api/ecs/upload-exceptions', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('File uploaded successfully:', data);
+                // Refresh schedules after upload
+                loadSchedules();
+            })
+            .catch(error => {
+                console.error('Error uploading file:', error);
+            });
+            */
+
             console.log('File uploaded:', file.name);
         }
-    };
+    }, []);
 
-    const handleScheduleClick = (clusterId) => {
+    const handleUploadClick = useCallback(() => {
+        fileInputRef.current?.click();
+    }, []);
+
+    const handleScheduleClick = useCallback((clusterId) => {
         const cluster = clusters.find(c => c.id === clusterId);
         setSelectedCluster(cluster);
         setIsScheduleModalOpen(true);
-    };
+    }, [clusters]);
 
-    const handleRemoveSchedule = (clusterName) => {
-        const updatedRanges = { ...scheduledRanges };
-        delete updatedRanges[clusterName];
-
-        setScheduledRanges(updatedRanges);
-
-        // Get fresh copy from localStorage to ensure we only remove the specific one
-        const saved = localStorage.getItem('lombard_ecs_schedules');
-        if (saved) {
-            try {
-                const schedules = JSON.parse(saved);
-                delete schedules[clusterName];
-                localStorage.setItem('lombard_ecs_schedules', JSON.stringify(schedules));
-            } catch (e) {
-                console.error("Failed to update localStorage", e);
-            }
-        }
+    const handleCloseModal = useCallback(() => {
         setIsScheduleModalOpen(false);
-    };
+    }, []);
 
-    const handleConfirmSchedule = (range) => {
-        if (selectedCluster) {
-            const start = new Date(range.from);
-            start.setHours(0, 0, 0, 0);
-            const endNormal = new Date(range.to);
-            endNormal.setHours(0, 0, 0, 0);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+    const handleRemoveSchedule = useCallback((clusterName) => {
+        // ⏸️ TODO: Replace with API call
+        // Uncomment when API is ready:
+        /*
+        const deleteSchedule = async () => {
+            try {
+                const response = await fetch(`/api/ecs/schedules/${clusterName}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete schedule');
+                
+                setScheduledRanges(prev => {
+                    const updated = { ...prev };
+                    delete updated[clusterName];
+                    
+                    // Update localStorage as backup
+                    const toStore = Object.entries(updated).reduce((acc, [key, value]) => {
+                        acc[key] = {
+                            ...value,
+                            from: value.from.toISOString(),
+                            to: value.to.toISOString()
+                        };
+                        return acc;
+                    }, {});
+                    localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(toStore));
+                    
+                    return updated;
+                });
+                
+                setIsScheduleModalOpen(false);
+            } catch (error) {
+                console.error('Error deleting schedule:', error);
+                // Show error to user (could add setError here)
+            }
+        };
+        deleteSchedule();
+        */
 
-            const total = Math.round((endNormal - start) / 86400000);
-            const remaining = Math.max(0, Math.round((endNormal - Math.max(today, start)) / 86400000));
+        // 🎭 CURRENT: Using localStorage (will become fallback)
+        setScheduledRanges(prev => {
+            const updated = { ...prev };
+            delete updated[clusterName];
 
-            const newSchedule = {
-                from: start.toISOString(),
-                to: endNormal.toISOString(),
-                remainingDays: remaining,
-                totalDays: total
-            };
+            // Update localStorage
+            const toStore = Object.entries(updated).reduce((acc, [key, value]) => {
+                acc[key] = {
+                    ...value,
+                    from: value.from.toISOString(),
+                    to: value.to.toISOString()
+                };
+                return acc;
+            }, {});
+            localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(toStore));
 
-            const updatedRanges = {
-                ...scheduledRanges,
+            return updated;
+        });
+
+        setIsScheduleModalOpen(false);
+    }, []);
+
+    const handleConfirmSchedule = useCallback((range) => {
+        if (!selectedCluster) return;
+
+        const start = new Date(range.from);
+        start.setHours(0, 0, 0, 0);
+        const endNormal = new Date(range.to);
+        endNormal.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const total = Math.round((endNormal - start) / 86400000);
+        const remaining = Math.max(0, Math.round((endNormal - Math.max(today, start)) / 86400000));
+
+        const newSchedule = {
+            from: start,
+            to: endNormal,
+            remainingDays: remaining,
+            totalDays: total
+        };
+
+        // ⏸️ TODO: Replace with API call
+        // Uncomment when API is ready:
+        /*
+        const saveSchedule = async () => {
+            try {
+                const response = await fetch(`/api/ecs/schedules/${selectedCluster.name}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        from: start.toISOString(),
+                        to: endNormal.toISOString(),
+                        remainingDays: remaining,
+                        totalDays: total
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Failed to save schedule');
+                
+                setScheduledRanges(prev => {
+                    const updated = {
+                        ...prev,
+                        [selectedCluster.name]: newSchedule
+                    };
+                    
+                    // Update localStorage as backup
+                    const toStore = Object.entries(updated).reduce((acc, [key, value]) => {
+                        acc[key] = {
+                            ...value,
+                            from: value.from.toISOString(),
+                            to: value.to.toISOString()
+                        };
+                        return acc;
+                    }, {});
+                    localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(toStore));
+                    
+                    return updated;
+                });
+                
+                setIsScheduleModalOpen(false);
+            } catch (error) {
+                console.error('Error saving schedule:', error);
+                // Show error to user (could add setError here)
+            }
+        };
+        saveSchedule();
+        */
+
+        // 🎭 CURRENT: Using localStorage (will become fallback)
+        setScheduledRanges(prev => {
+            const updated = {
+                ...prev,
                 [selectedCluster.name]: newSchedule
             };
 
-            setScheduledRanges(prev => ({
-                ...prev,
-                [selectedCluster.name]: {
-                    ...newSchedule,
-                    from: start,
-                    to: endNormal
-                }
-            }));
+            // Update localStorage
+            const toStore = Object.entries(updated).reduce((acc, [key, value]) => {
+                acc[key] = {
+                    ...value,
+                    from: value.from.toISOString(),
+                    to: value.to.toISOString()
+                };
+                return acc;
+            }, {});
+            localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(toStore));
 
-            localStorage.setItem('lombard_ecs_schedules', JSON.stringify(updatedRanges));
-            setIsScheduleModalOpen(false);
-        }
-    };
+            return updated;
+        });
 
-    const filteredClusters = clusters.filter(cluster =>
-        cluster.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+        setIsScheduleModalOpen(false);
+    }, [selectedCluster]);
 
-    const getComputeTypeColor = (type) => {
-        switch (type) {
-            case 'FARGATE':
-                return 'compute-fargate';
-            case 'ASG':
-                return 'compute-asg';
-            default:
-                return 'compute-fargate';
-        }
-    };
+    const handleNavigateToDeltaUpdates = useCallback(() => {
+        navigate('/ecs/updates');
+    }, [navigate]);
+
+    // ========================================================================
+    // RENDER - HYBRID ERROR HANDLING
+    // ========================================================================
+
+    // 🚨 FULL PAGE ERROR - Only if initial load failed and no data to show
+    if (error && isInitialLoad && clusters.length === 0) {
+        return (
+            <div className="ecs-page">
+                <div className="error-state-fullpage">
+                    <div className="error-container-fullpage">
+                        <XCircle size={64} className="error-icon" />
+                        <h2>Failed to Load Clusters</h2>
+                        <p className="error-message">{error}</p>
+                        <button
+                            onClick={fetchClusters}
+                            className="retry-btn"
+                            disabled={isSyncing}
+                        >
+                            <RefreshCw size={20} className={isSyncing ? 'spinning' : ''} />
+                            {isSyncing ? 'Retrying...' : 'Retry'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ========================================================================
+    // RENDER - MAIN CONTENT
+    // ========================================================================
 
     return (
         <div className="ecs-page">
+            {/* ⚠️ ERROR BANNER - Shows if sync failed but we have cached data */}
+            {error && !isInitialLoad && (
+                <div className="error-banner-top">
+                    <div className="error-banner-content">
+                        <AlertTriangle size={20} />
+                        <div className="error-text">
+                            <strong>Sync Failed:</strong> {error}
+                            <span className="error-subtext">Showing last known data</span>
+                        </div>
+                        <button
+                            onClick={fetchClusters}
+                            className="retry-btn-inline"
+                            disabled={isSyncing}
+                        >
+                            <RefreshCw size={16} className={isSyncing ? 'spinning' : ''} />
+                            {isSyncing ? 'Retrying...' : 'Retry'}
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Page Header */}
             <div className="page-header-modern">
                 <div className="header-content-cluster">
@@ -229,15 +609,12 @@ function ECS() {
                         </div>
                         <div className="header-text">
                             <h1 className="page-title-modern">ECS Cluster Scheduler</h1>
-                            {/* <p className="page-subtitle-modern">
-                                Automated cluster management with nightly shutdown and exception handling
-                            </p> */}
                         </div>
                     </div>
 
                     <button
                         className="btn-delta-updates"
-                        onClick={() => navigate('/ecs/updates')}
+                        onClick={handleNavigateToDeltaUpdates}
                     >
                         <div className="icon-wrapper">
                             <GitCompare size={20} />
@@ -256,7 +633,7 @@ function ECS() {
                             <ECSIcon size={60} />
                         </div>
                         <div className="stat-content-modern">
-                            <h3 className="stat-value-modern">{totalClustersCount}</h3>
+                            <h3 className="stat-value-modern">{stats.totalClustersCount}</h3>
                             <p className="stat-label-modern">Total Clusters</p>
                         </div>
                         <div className="stat-trend">
@@ -269,7 +646,7 @@ function ECS() {
                             <Server size={28} />
                         </div>
                         <div className="stat-content-modern">
-                            <h3 className="stat-value-modern">{totalServices}</h3>
+                            <h3 className="stat-value-modern">{stats.totalServices}</h3>
                             <p className="stat-label-modern">Total Services</p>
                         </div>
                         <div className="stat-trend">
@@ -282,9 +659,7 @@ function ECS() {
                             <Clock size={28} />
                         </div>
                         <div className="stat-content-modern">
-                            <h3 className="stat-value-modern">
-                                {Object.keys(scheduledRanges).length}
-                            </h3>
+                            <h3 className="stat-value-modern">{stats.activeExceptions}</h3>
                             <p className="stat-label-modern">Active Exceptions</p>
                         </div>
                         <div className="stat-trend">
@@ -306,7 +681,7 @@ function ECS() {
 
                     <button
                         className="action-btn-modern btn-upload"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={handleUploadClick}
                     >
                         <Upload size={20} />
                         <span>Upload Exceptions</span>
@@ -317,7 +692,7 @@ function ECS() {
                         type="file"
                         accept=".txt,.csv,.json"
                         onChange={handleFileUpload}
-                        style={{ display: 'none' }}
+                        className="hidden-file-input"
                     />
                 </div>
             </div>
@@ -334,7 +709,7 @@ function ECS() {
                 />
                 {searchQuery && (
                     <span className="search-results-count">
-                        {filteredClusters.length} results
+                        {filteredClustersWithStatus.length} results
                     </span>
                 )}
             </div>
@@ -361,56 +736,26 @@ function ECS() {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredClusters.map((cluster, index) => (
-                                <tr key={cluster.id} className={`table-row-modern ${index % 2 !== 0 ? 'striped-row' : ''}`}>
-                                    <td className="cluster-name-modern clickable-cell" onClick={() => handleClusterClick(cluster.name)}>
+                            {filteredClustersWithStatus.map((cluster) => (
+                                <tr
+                                    key={cluster.id}
+                                    className={`table-row-modern ${cluster.id % 2 !== 0 ? 'striped-row' : ''}`}
+                                >
+                                    <td
+                                        className="cluster-name-modern clickable-cell"
+                                        onClick={() => handleClusterClick(cluster.name)}
+                                    >
                                         <div className="cluster-info">
                                             <Container size={20} className="cluster-icon-modern" />
                                             <div className="cluster-details">
                                                 <span className="cluster-name-text">{cluster.name}</span>
-                                                {(cluster.isException || scheduledRanges[cluster.name]) && (
-                                                    <span className={`exception-badge ${(() => {
-                                                        const data = scheduledRanges[cluster.name];
-                                                        if (!data) return 'bg-safe';
-
-                                                        const start = new Date(data.from);
-                                                        start.setHours(0, 0, 0, 0);
-                                                        const end = new Date(data.to);
-                                                        end.setHours(0, 0, 0, 0);
-                                                        const today = new Date();
-                                                        today.setHours(0, 0, 0, 0);
-
-                                                        const total = Math.round((end - start) / 86400000);
-                                                        const remaining = Math.max(0, Math.round((end - Math.max(today, start)) / 86400000));
-
-                                                        if (remaining <= 1) return 'bg-critical';
-                                                        if ((remaining / total) <= 0.5) return 'bg-warning';
-                                                        return 'bg-safe';
-                                                    })()}`}>
-                                                        {(() => {
-                                                            const data = scheduledRanges[cluster.name];
-                                                            if (!data) return null;
-
-                                                            const start = new Date(data.from);
-                                                            start.setHours(0, 0, 0, 0);
-                                                            const end = new Date(data.to);
-                                                            end.setHours(0, 0, 0, 0);
-                                                            const today = new Date();
-                                                            today.setHours(0, 0, 0, 0);
-
-                                                            const remaining = Math.max(0, Math.round((end - Math.max(today, start)) / 86400000));
-                                                            const total = Math.round((end - start) / 86400000);
-
-                                                            return (
-                                                                <>
-                                                                    <ExceptionTimer
-                                                                        remaining={remaining}
-                                                                        total={total}
-                                                                    />
-                                                                    Active {remaining} {remaining === 1 ? 'Day' : 'Days'}
-                                                                </>
-                                                            );
-                                                        })()}
+                                                {cluster.scheduleStatus && (
+                                                    <span className={`exception-badge ${cluster.scheduleStatus.badgeClass}`}>
+                                                        <ExceptionTimer
+                                                            remaining={cluster.scheduleStatus.remaining}
+                                                            total={cluster.scheduleStatus.total}
+                                                        />
+                                                        Active {cluster.scheduleStatus.remaining} {cluster.scheduleStatus.remaining === 1 ? 'Day' : 'Days'}
                                                     </span>
                                                 )}
                                             </div>
@@ -454,7 +799,7 @@ function ECS() {
                         </tbody>
                     </table>
 
-                    {filteredClusters.length === 0 && (
+                    {filteredClustersWithStatus.length === 0 && (
                         <div className="empty-state-modern">
                             <Container size={80} className="empty-icon-modern" />
                             <h3>No clusters found</h3>
@@ -463,12 +808,13 @@ function ECS() {
                     )}
                 </div>
             </div>
-            {/* Schedule Modal Component */}
+
+            {/* Schedule Modal */}
             <ScheduleModal
                 isOpen={isScheduleModalOpen}
                 cluster={selectedCluster}
                 initialRange={selectedCluster ? scheduledRanges[selectedCluster.name] : null}
-                onClose={() => setIsScheduleModalOpen(false)}
+                onClose={handleCloseModal}
                 onConfirm={handleConfirmSchedule}
                 onRemove={handleRemoveSchedule}
             />

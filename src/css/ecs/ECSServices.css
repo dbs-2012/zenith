@@ -968,3 +968,254 @@ input:checked+.slider:before {
 .layout-container[data-theme="dark"] .step-input {
     color: #ffffff;
 }
+
+/* Loading State */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    gap: 1rem;
+}
+
+.loading-state p {
+    color: #6b7280;
+    font-size: 1.1rem;
+}
+
+/* Error State */
+.error-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    gap: 1.5rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+.error-state .error-icon {
+    color: #dc2626;
+}
+
+.error-state h2 {
+    color: #1f2937;
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.error-state p {
+    color: #6b7280;
+    font-size: 1rem;
+    max-width: 500px;
+}
+
+.error-state .retry-btn,
+.error-state .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.error-state .back-btn {
+    background: #6b7280;
+}
+
+.error-state .retry-btn:hover {
+    background: #2563eb;
+}
+
+.error-state .back-btn:hover {
+    background: #4b5563;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    gap: 1.5rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+.empty-state .empty-icon {
+    color: #9ca3af;
+}
+
+.empty-state h2 {
+    color: #1f2937;
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.empty-state p {
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+.empty-state .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.empty-state .back-btn:hover {
+    background: #2563eb;
+}
+
+/* Spinning animation */
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Operation Result Banner */
+.operation-result-banner {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border: 1px solid #6ee7b7;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(110, 231, 183, 0.15);
+    animation: slideDown 0.3s ease-out;
+}
+
+.operation-result-banner.stop {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 1px solid #fca5a5;
+}
+
+.operation-result-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.operation-result-content svg:first-child {
+    color: #059669;
+    flex-shrink: 0;
+}
+
+.operation-result-banner.stop .operation-result-content svg:first-child {
+    color: #dc2626;
+}
+
+.operation-result-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.operation-result-text strong {
+    color: #065f46;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.operation-result-banner.stop .operation-result-text strong {
+    color: #991b1b;
+}
+
+.operation-result-text span {
+    color: #047857;
+    font-size: 0.85rem;
+}
+
+.operation-result-banner.stop .operation-result-text span {
+    color: #b91c1c;
+}
+
+.close-banner-btn {
+    background: none;
+    border: none;
+    color: #059669;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.close-banner-btn:hover {
+    background: rgba(5, 150, 105, 0.1);
+}
+
+.operation-result-banner.stop .close-banner-btn {
+    color: #dc2626;
+}
+
+.operation-result-banner.stop .close-banner-btn:hover {
+    background: rgba(220, 38, 38, 0.1);
+}
+
+/* Night Mode Toggle Button */
+.night-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #f3f4f6;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #6b7280;
+}
+
+.night-mode-btn:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+}
+
+.night-mode-btn.active {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+.night-mode-btn.active:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+/* Button disabled states */
+.action-btn-modern:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.action-btn-modern:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
