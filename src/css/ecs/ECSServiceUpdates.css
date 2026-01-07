@@ -574,3 +574,261 @@
         font-size: 2.5rem;
     }
 }
+
+/* Error State */
+.error-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    gap: 1.5rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+.error-state .error-icon {
+    color: #dc2626;
+}
+
+.error-state h2 {
+    color: #1f2937;
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.error-state p {
+    color: #6b7280;
+    font-size: 1rem;
+    max-width: 500px;
+}
+
+.error-state .retry-btn,
+.error-state .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.error-state .back-btn {
+    background: #6b7280;
+}
+
+.error-state .retry-btn:hover {
+    background: #2563eb;
+}
+
+.error-state .back-btn:hover {
+    background: #4b5563;
+}
+
+/* Refresh/Sync Button */
+.btn-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-refresh:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-refresh:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-refresh .spinning {
+    animation: spin 1s linear infinite;
+}
+
+/* Updated Services Metric Card */
+.metric-card.metric-updated {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #fbbf24;
+}
+
+.metric-updated .metric-icon {
+    background: rgba(245, 158, 11, 0.15);
+    color: #d97706;
+}
+
+.metric-updated .metric-value {
+    color: #c1921c;
+}
+
+/* Sync Info Banner */
+.sync-info-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border: 1px solid #6ee7b7;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: #065f46;
+    box-shadow: 0 2px 6px rgba(110, 231, 183, 0.15);
+}
+
+.sync-info-banner svg {
+    color: #059669;
+    flex-shrink: 0;
+}
+
+.sync-info-banner .separator {
+    color: #6ee7b7;
+}
+
+.sync-info-banner .text-success {
+    font-weight: 600;
+    color: #047857;
+}
+
+/* Change Summary Badges */
+.change-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+.summary-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.summary-badge.added {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+
+.summary-badge.updated {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fbbf24;
+}
+
+.summary-badge.deleted {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+/* Count Badges */
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+/* Updated Column */
+.delta-col.updated-col .col-title {
+    color: #92400e;
+}
+
+.delta-pill.updated {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #fbbf24;
+    color: #92400e;
+}
+
+.delta-pill.updated svg {
+    color: #d97706;
+}
+
+/* Change Indicator */
+.change-indicator {
+    margin-left: auto;
+    padding: 0.125rem 0.5rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: help;
+}
+
+/* Enhanced Delta Pills */
+.delta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 120px;
+}
+
+.delta-pill svg {
+    flex-shrink: 0;
+}
+
+/* Search Results Info */
+.search-results-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Clear Search Button */
+.clear-search-btn {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background 0.2s;
+}
+
+.clear-search-btn:hover {
+    background: #2563eb;
+}
+
+/* Spinning animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* No report data - success variant */
+.no-report-data svg {
+    color: #10b981;
+}

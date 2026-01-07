@@ -340,9 +340,50 @@ function ECS() {
         navigate(`/ecs/${clusterName}`);
     }, [navigate]);
 
-    const handleSync = useCallback(() => {
-        fetchClusters();
-    }, [fetchClusters]);
+    const handleSync = useCallback(async () => {
+        setIsSyncing(true);
+        setError(null);
+
+        // ⏸️ TODO: Uncomment when ready to use the sync API
+        /*
+        try {
+            const response = await fetch('/api/ecs/sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Sync failed: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error?.message || 'Failed to sync clusters');
+            }
+
+            console.log('Sync completed successfully:', result.summary);
+
+            // After successful sync, navigate to the service updates page
+            navigate('/ecs/updates');
+        } catch (err) {
+            console.error('Error syncing clusters:', err);
+            setError(err.message);
+        } finally {
+            setIsSyncing(false);
+        }
+        */
+
+        // 🎭 SIMULATION (Remove when API is ready)
+        setTimeout(() => {
+            setIsSyncing(false);
+            console.log('Sync completed (simulated)');
+            // Navigate to service updates page after sync
+            navigate('/ecs/updates');
+        }, 2000);
+    }, [navigate]);
 
     const handleFileUpload = useCallback((event) => {
         const file = event.target.files[0];
