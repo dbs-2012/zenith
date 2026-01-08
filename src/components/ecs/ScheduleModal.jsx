@@ -64,7 +64,10 @@ const ScheduleModal = ({ isOpen, onClose, onConfirm, onRemove, cluster, initialR
         if (startDate && !isSaving) {
             setIsSaving(true);
 
-            // Simulate backend delay
+            // Note: The actual API call is handled by the parent component (ECS.jsx or ECSServices.jsx)
+            // This component just prepares the data and shows loading state
+
+            // Simulate backend delay (remove this when API is integrated)
             setTimeout(() => {
                 onConfirm({
                     from: startDate,
@@ -72,6 +75,9 @@ const ScheduleModal = ({ isOpen, onClose, onConfirm, onRemove, cluster, initialR
                 });
                 setIsSaving(false);
             }, 800);
+
+            // When API is integrated, the parent component will handle the API call
+            // and this setTimeout will be removed. The parent will manage the loading state.
         }
     };
 

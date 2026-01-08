@@ -755,6 +755,66 @@ function ECSServices() {
     }, []);
 
     const handleRemoveSchedule = useCallback((name) => {
+        // ⏸️ TODO: Replace with actual API call
+        // Uncomment when API is ready:
+        /*
+        const deleteSchedule = async () => {
+            try {
+                const response = await fetch(`/api/ecs/schedules/${encodeURIComponent(name)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to delete schedule: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                // Expected API response format:
+                // {
+                //     success: true,
+                //     message: "Schedule deleted successfully",
+                //     data: {
+                //         clusterName: "production-api-cluster"
+                //     }
+                // }
+                
+                if (!result.success) {
+                    throw new Error(result.error?.message || 'Failed to delete schedule');
+                }
+                
+                console.log('Schedule deleted successfully:', result.data);
+                
+                // Update local state - remove the schedule
+                setScheduledRange(null);
+                
+                // Update localStorage as backup
+                const saved = localStorage.getItem(SCHEDULE_CACHE_KEY);
+                if (saved) {
+                    try {
+                        const schedules = JSON.parse(saved);
+                        delete schedules[name];
+                        localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(schedules));
+                    } catch (e) {
+                        console.error("Failed to update localStorage", e);
+                    }
+                }
+                
+                setIsScheduleModalOpen(false);
+                
+            } catch (error) {
+                console.error('Error deleting schedule:', error);
+                setError(error.message);
+                // Don't close modal on error so user can retry
+            }
+        };
+        deleteSchedule();
+        */
+
+        // 🎭 CURRENT: Using localStorage (will become fallback)
         setScheduledRange(null);
 
         const saved = localStorage.getItem(SCHEDULE_CACHE_KEY);
@@ -768,9 +828,98 @@ function ECSServices() {
             }
         }
         setIsScheduleModalOpen(false);
+        console.log(`Schedule removed for cluster: ${name}`);
     }, []);
 
     const handleConfirmSchedule = useCallback((range) => {
+        const start = new Date(range.from);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(range.to);
+        end.setHours(0, 0, 0, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const total = Math.round((end - start) / 86400000);
+        const remaining = Math.max(0, Math.round((end - Math.max(today, start)) / 86400000));
+
+        // ⏸️ TODO: Replace with actual API call
+        // Uncomment when API is ready:
+        /*
+        const saveSchedule = async () => {
+            try {
+                const response = await fetch('/api/ecs/schedules', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        clusterName: clusterName,  // Cluster name from URL params
+                        from: start.toISOString().split('T')[0],  // Send only date: "2026-01-08"
+                        to: end.toISOString().split('T')[0],  // Send only date: "2026-01-15"
+                        remainingDays: remaining,
+                        totalDays: total
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to save schedule: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                // Expected API response format:
+                // {
+                //     success: true,
+                //     message: "Schedule created successfully",
+                //     data: {
+                //         clusterName: "production-api-cluster",
+                //         from: "2026-01-08",
+                //         to: "2026-01-15",
+                //         remainingDays: 7,
+                //         totalDays: 7
+                //     }
+                // }
+                
+                if (!result.success) {
+                    throw new Error(result.error?.message || 'Failed to save schedule');
+                }
+                
+                console.log('Schedule saved successfully:', result.data);
+                
+                // Update local state with the saved schedule
+                setScheduledRange(range);
+                
+                // Update localStorage as backup
+                const saved = localStorage.getItem(SCHEDULE_CACHE_KEY);
+                let schedules = {};
+                if (saved) {
+                    try {
+                        schedules = JSON.parse(saved);
+                    } catch (e) {
+                        console.error("Failed to parse current schedules", e);
+                    }
+                }
+                
+                schedules[clusterName] = {
+                    from: start.toISOString(),
+                    to: end.toISOString(),
+                    remainingDays: remaining,
+                    totalDays: total
+                };
+                
+                localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify(schedules));
+                setIsScheduleModalOpen(false);
+                
+            } catch (error) {
+                console.error('Error saving schedule:', error);
+                setError(error.message);
+                // Don't close modal on error so user can retry
+            }
+        };
+        saveSchedule();
+        */
+
+        // 🎭 CURRENT: Using localStorage (will become fallback)
         setScheduledRange(range);
 
         const saved = localStorage.getItem(SCHEDULE_CACHE_KEY);
@@ -782,16 +931,6 @@ function ECSServices() {
                 console.error("Failed to parse current schedules", e);
             }
         }
-
-        const start = new Date(range.from);
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(range.to);
-        end.setHours(0, 0, 0, 0);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const total = Math.round((end - start) / 86400000);
-        const remaining = Math.max(0, Math.round((end - Math.max(today, start)) / 86400000));
 
         schedules[clusterName] = {
             from: start.toISOString(),

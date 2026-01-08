@@ -430,17 +430,40 @@ function ECS() {
     }, []);
 
     const handleRemoveSchedule = useCallback((clusterName) => {
-        // ⏸️ TODO: Replace with API call
+        // ⏸️ TODO: Replace with actual API call
         // Uncomment when API is ready:
         /*
         const deleteSchedule = async () => {
             try {
-                const response = await fetch(`/api/ecs/schedules/${clusterName}`, {
-                    method: 'DELETE'
+                const response = await fetch(`/api/ecs/schedules/${encodeURIComponent(clusterName)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
                 });
                 
-                if (!response.ok) throw new Error('Failed to delete schedule');
+                if (!response.ok) {
+                    throw new Error(`Failed to delete schedule: ${response.statusText}`);
+                }
                 
+                const result = await response.json();
+                
+                // Expected API response format:
+                // {
+                //     success: true,
+                //     message: "Schedule deleted successfully",
+                //     data: {
+                //         clusterName: "production-api-cluster"
+                //     }
+                // }
+                
+                if (!result.success) {
+                    throw new Error(result.error?.message || 'Failed to delete schedule');
+                }
+                
+                console.log('Schedule deleted successfully:', result.data);
+                
+                // Update local state - remove the schedule
                 setScheduledRanges(prev => {
                     const updated = { ...prev };
                     delete updated[clusterName];
@@ -460,9 +483,11 @@ function ECS() {
                 });
                 
                 setIsScheduleModalOpen(false);
+                
             } catch (error) {
                 console.error('Error deleting schedule:', error);
-                // Show error to user (could add setError here)
+                setError(error.message);
+                // Don't close modal on error so user can retry
             }
         };
         deleteSchedule();
@@ -488,6 +513,7 @@ function ECS() {
         });
 
         setIsScheduleModalOpen(false);
+        console.log(`Schedule removed for cluster: ${clusterName}`);
     }, []);
 
     const handleConfirmSchedule = useCallback((range) => {
@@ -510,26 +536,51 @@ function ECS() {
             totalDays: total
         };
 
-        // ⏸️ TODO: Replace with API call
+        // ⏸️ TODO: Replace with actual API call
         // Uncomment when API is ready:
         /*
         const saveSchedule = async () => {
             try {
-                const response = await fetch(`/api/ecs/schedules/${selectedCluster.name}`, {
+                const response = await fetch('/api/ecs/schedules', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        from: start.toISOString(),
-                        to: endNormal.toISOString(),
+                        clusterName: selectedCluster.name,  // Cluster name from selected cluster
+                        from: start.toISOString().split('T')[0],  // Send only date: "2026-01-08"
+                        to: endNormal.toISOString().split('T')[0],  // Send only date: "2026-01-15"
                         remainingDays: remaining,
                         totalDays: total
                     })
                 });
                 
-                if (!response.ok) throw new Error('Failed to save schedule');
+                if (!response.ok) {
+                    throw new Error(`Failed to save schedule: ${response.statusText}`);
+                }
                 
+                const result = await response.json();
+                
+                // Expected API response format:
+                // {
+                //     success: true,
+                //     message: "Schedule created successfully",
+                //     data: {
+                //         clusterName: "production-api-cluster",
+                //         from: "2026-01-08",
+                //         to: "2026-01-15",
+                //         remainingDays: 7,
+                //         totalDays: 7
+                //     }
+                // }
+                
+                if (!result.success) {
+                    throw new Error(result.error?.message || 'Failed to save schedule');
+                }
+                
+                console.log('Schedule saved successfully:', result.data);
+                
+                // Update local state with the saved schedule
                 setScheduledRanges(prev => {
                     const updated = {
                         ...prev,
@@ -551,9 +602,11 @@ function ECS() {
                 });
                 
                 setIsScheduleModalOpen(false);
+                
             } catch (error) {
                 console.error('Error saving schedule:', error);
-                // Show error to user (could add setError here)
+                setError(error.message);
+                // Don't close modal on error so user can retry
             }
         };
         saveSchedule();
@@ -581,6 +634,7 @@ function ECS() {
         });
 
         setIsScheduleModalOpen(false);
+        console.log(`Schedule confirmed for ${selectedCluster.name}:`, { from: start, to: endNormal, duration: total });
     }, [selectedCluster]);
 
     const handleNavigateToDeltaUpdates = useCallback(() => {
