@@ -700,7 +700,7 @@ function ECS() {
                 <div className="header-content-cluster">
                     <div className="header-left-cluster">
                         <div className="header-icon-modern">
-                            <ECSIcon size={64} />
+                            <ECSIcon className="header-icon-svg" />
                         </div>
                         <div className="header-text">
                             <h1 className="page-title-modern">ECS Cluster Scheduler</h1>
@@ -913,7 +913,7 @@ function ECS() {
                 onConfirm={handleConfirmSchedule}
                 onRemove={handleRemoveSchedule}
             />
-        </div>
+        </div >
     );
 }
 
